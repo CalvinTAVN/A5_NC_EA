@@ -90,7 +90,16 @@ endif31:
         */
 
 whileLoopStart1:
+        adr w0, iChar //sets w0 to iChar
+        ldr w0, [x0]  //loads w0
+        bl getchar    //sets iChar (w0) to the contents of txt file char
+        //str here to set contents of w0 to iChar or is it done implicitly?
+        cmp 
         
+  
+
+        
+      
 
 
 
