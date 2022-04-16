@@ -89,7 +89,10 @@ endWhile1:
                 lWordCount++    ;
                 goto endif31    ;
 
-endif31:   
+endif31:
+
+        printf("%7ld %7ld %7ld\n", lLineCount, lWordCount, lCharCount) ;
+        return 0
         */
 
 whileLoopStart1:
@@ -157,11 +160,58 @@ else11:
 endif21:
 
         //if (! (iChar == '\n')) goto whileLoopStart1
+        adr x0, iChar //x0 will be a pointer to iChar
+        ldr w0, [x0] //load the contents of x0 into w0
+        cmp w0, EOF //compares iChar to EOF
+        bne whileLoopStart1 //if iChar != EOF
+
+        // lLineCount++
+        adr x0, lLineCount //x0 will be a pointer to lLineCount
+        ldr w1, [x0] //load contents of x0 into w1
+        add w1, w1, 1 //increase lLineCount by 1
+        str w1, [x0] //store the change in x0 (lLineCount)
+
+        //goto whileLoopStart1
+        b whileLoopStart1
         
 endWhile1:
 
+        //if (! iInWord) goto endif31
+        adr x0, iInWord //x0 will be the pointer to iInWord
+        ldr w0, [x0] //load the contents of iInWord into w0
+        cmp w0, TRUE //compares iInWord to 1 (TRUE)
+        bne endif31  //if iInWord is not TRUE
+
+        // lWordCount++
+        adr x0, lWordCount //x0 will bea  pointer to lWordCount
+        ldr, w1, [x0] //load contents of x0 into w1
+        add w1, w1, 1 //increase lWordCount by 1
+        str w1, [x0] //store the change in x0 (lWordCount)
+
+        //goto endif31
+        b endif31
+        
 endif31:
 
+        //printf("%7ld %7ld %7ld\n", lLineCount, lWordCount, lCharCount);
+        adr x0, endString //x0 will be the pointer to endString
+        adr x1, lLineCount
+        ldr w1, [x1] //loads content of lLineCount into w1
+        adr x2, lWordCount
+        ldr w2, [x2] //loads contents of lWordCount into w2
+        adr x3, lCharCount
+        ldr w3 [x3] //loads content of lCharCount into w3
+        bl printf
+
+        //Epilog and return 0
+        mov w0, 0  //set contents of w0 to 0
+        ldr x30, [sp]  //load conents of sp into x30
+        add sp, sp, MAIN_STACK_BYTECOUNT //delete the space from stack
+        ret
+
+
+        .size main, (. - main)
+        
         
         
       
