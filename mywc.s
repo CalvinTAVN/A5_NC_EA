@@ -27,6 +27,7 @@ lCharCount:
 iInWord:
         .word FALSE
 
+        
         .section .bss
 
 iChar:
@@ -40,6 +41,8 @@ iChar:
         // 16 since we aren't using any local variables
         //main uses 8 to start
         .equ MAIN_STACK_BYTECOUNT, 16
+
+        .equ EOF, -1
         
         .global main
 
@@ -90,14 +93,76 @@ endif31:
         */
 
 whileLoopStart1:
-        adr w0, iChar //sets w0 to iChar
-        ldr w0, [x0]  //loads w0
-        bl getchar    //sets iChar (w0) to the contents of txt file char
-        //str here to set contents of w0 to iChar or is it done implicitly?
-        cmp 
-        
-  
 
+        // if ((! (iChar = getchar()) != EOF)) goto endWhile1
+        bl getchar    //sets iChar (x0) to the contents of txt file char
+        adr x1, iChar //x1 will be a pointer to iChar
+        str w0, [x1]   //Store the char, in x1 which is iChar
+        cmp w0, EOF   //Compare EOF to char
+        beq endWhile1 //If char is equal to EOF, go to endWhile1
+
+        // lCharCount++
+        adr x0, lCharCount //x0 will be a pointer to lCharCount
+        ldr w1, [x0]  //load the contents of x0 into w1 which is 0 initially
+        add w1, w1, 1 //increase lCharCount by 1
+        str w1, [x0] //Store the change in value into lCharCount 
+
+        // if (! isspace(iChar))) goto else11
+        adr x0, iChar //x0 will be a pointer to iChar
+        ldr w0, [x0] //load the contents of x0 into w0
+        bl isspace   //stores the output of isspace into x0
+        cmp w0, 0 //compares the contents of isspace to 0
+        beq else11
+
+        // if (! iInWord) goto endif21
+        adr x0, iInWord //x0 will be a pointer to iInWord
+        ldr w0, [x0] //load the contents of iInWord into w0
+        cmp w0, TRUE //compares iInWord to 1 (TRUE)
+        bne endif21 //if it is not TRUE, go to endif21
+
+        // lwordCount++
+        adr x0, lwordCount //x0 will be a pointer to lwordCount
+        ldr w1, [x0] //load the contents of lwordCount into w1
+        add w1, w1, 1 //increase lwordCount by 1
+        str w1, [x0] //store the increased value into x0 (lwordCount)
+
+        // iInWord = FALSE
+        adr x0, iInWord //xo will be a pointe to iInWord
+        ldr w1, [x0] //load iInWord into w1
+        mov w1, FALSE
+        str w1, [x0] //set iInWord to FALSE (0)
+
+        // goto endif21
+        b endif21   
+        
+
+
+else11:
+
+        // if (iInWord) goto endif21
+        adr x0, iInWord // x0 will be a pointer to iInWord
+        ldr w0, [x0] //load the contents of iInWord into w0
+        cmp w0, TRUE //compares iInWord to 1 (TRUE)
+        beq endif21  //if iInWord, go to endif21
+
+        // iInWord = TRUE
+        adr x0, iInWord //x0 will be a pointer to iInWord
+        ldr w1, [x0] //load the contents of iInWord into w0
+        mov w1, TRUE
+        str w1, [x0] //set iInWord to TRUE (1)
+
+        // goto endif21
+        b endif21
+        
+endif21:
+
+        //if (! (iChar == '\n')) goto whileLoopStart1
+        
+endWhile1:
+
+endif31:
+
+        
         
       
 
