@@ -4,7 +4,7 @@
 //----------------------------------------------
 */
 
-        .macro enum FALSE = 0, TRUE = 1 
+        //.macro enum FALSE = 0, TRUE = 1 
         
         .section .rodata
         
@@ -37,6 +37,10 @@ iChar:
 
         .section .text
 
+        //.macro enum FALSE 0, TRUE = 1
+        .equ FALSE, 0
+        .equ TRUE, 1
+        
         // Must be a multiple of 16
         // 16 since we aren't using any local variables
         //main uses 8 to start
@@ -49,7 +53,7 @@ iChar:
 main:
 
         //prolog
-        sub sp, sp, MAIN_STACK_BYTE_COUNT
+        sub sp, sp, MAIN_STACK_BYTECOUNT
         str x30, [sp]
         
 
@@ -124,10 +128,10 @@ whileLoopStart1:
         bne endif21 //if it is not TRUE, go to endif21
 
         // lwordCount++
-        adr x0, lwordCount //x0 will be a pointer to lwordCount
+        adr x0, lWordCount //x0 will be a pointer to lWordCount
         ldr w1, [x0] //load the contents of lwordCount into w1
-        add w1, w1, 1 //increase lwordCount by 1
-        str w1, [x0] //store the increased value into x0 (lwordCount)
+        add w1, w1, 1 //increase lWordCount by 1
+        str w1, [x0] //store the increased value into x0 (lWordCount)
 
         // iInWord = FALSE
         adr x0, iInWord //xo will be a pointe to iInWord
@@ -184,7 +188,7 @@ endWhile1:
 
         // lWordCount++
         adr x0, lWordCount //x0 will bea  pointer to lWordCount
-        ldr, w1, [x0] //load contents of x0 into w1
+        ldr w1, [x0] //load contents of x0 into w1
         add w1, w1, 1 //increase lWordCount by 1
         str w1, [x0] //store the change in x0 (lWordCount)
 
@@ -200,7 +204,7 @@ endif31:
         adr x2, lWordCount
         ldr w2, [x2] //loads contents of lWordCount into w2
         adr x3, lCharCount
-        ldr w3 [x3] //loads content of lCharCount into w3
+        ldr w3, [x3] //loads content of lCharCount into w3
         bl printf
 
         //Epilog and return 0
