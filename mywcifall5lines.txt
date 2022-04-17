@@ -1,0 +1,5 @@
+This sentence is six words long.
+Sentence two should be 7 words long.
+3rd sentence has five words.
+Without spaces or newlines, sentence 4 has 49 characters.
+This file contains 32 words.

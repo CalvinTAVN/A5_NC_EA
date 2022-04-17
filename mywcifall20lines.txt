@@ -1,0 +1,20 @@
+First 109 digits of pi:
+3.14159265
+3589793238
+4626433832
+7950288419
+7169399375
+1058209749
+4459230781
+6406286208
+9986280348
+2534211706
+7982148086
+Pi is the ratio of a circle's circumference to its diameter:
+C = 2 * Pi * r = Pi * d
+Pi = C / d
+Pi Day is celebrated annually on 3/14 around the world.
+People celebrate by eating pie, seeing how many digits of
+Pi they can memorize, and learning more about Pi and why
+it's so important.
+For math lovers, Pi Day is one of the best days of the year.
