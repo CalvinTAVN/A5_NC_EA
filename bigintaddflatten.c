@@ -18,7 +18,6 @@ enum {FALSE, TRUE};
 static long BigInt_larger(long lLength1, long lLength2)
 {
    long lLarger;
-  
    if (lLength1 > lLength2)
       lLarger = lLength1;
    else
