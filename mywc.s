@@ -47,6 +47,8 @@ iChar:
         .equ MAIN_STACK_BYTECOUNT, 16
 
         .equ EOF, -1
+
+        .equ NEWLINE, 10
         
         .global main
 
@@ -166,7 +168,7 @@ endif21:
         //if (! (iChar == '\n')) goto whileLoopStart1
         adr x0, iChar //x0 will be a pointer to iChar
         ldr w0, [x0] //load the contents of x0 into w0
-        cmp w0, EOF //compares iChar to EOF
+        cmp w0, NEWLINE //compares iChar to EOF
         bne whileLoopStart1 //if iChar != EOF
 
         // lLineCount++
