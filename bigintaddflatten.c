@@ -18,11 +18,23 @@ enum {FALSE, TRUE};
 static long BigInt_larger(long lLength1, long lLength2)
 {
    long lLarger;
+   if (lLength1 <= lLength2) goto larger_else;
+   lLarger = lLength1;
+   goto larger_endif;
+   
+  larger_else:
+   lLarger = lLength2;
+   
+  larger_endif:
+
+   return lLarger;
+      /*
    if (lLength1 > lLength2)
       lLarger = lLength1;
    else
       lLarger = lLength2;
    return lLarger;
+   */
 }
 
 /*--------------------------------------------------------------------*/
@@ -48,35 +60,51 @@ int BigInt_add(BigInt_T oAddend1, BigInt_T oAddend2, BigInt_T oSum)
    lSumLength = BigInt_larger(oAddend1->lLength, oAddend2->lLength);
 
    /* Clear oSum's array if necessary. */
+   if (oSum->lLength <= lSumLength) goto add_endif1;
+   memset(oSum->aulDigits, 0, MAX_DIGITS * sizeof(unsigned long));
+  add_endif1:
+   /*
    if (oSum->lLength > lSumLength)
       memset(oSum->aulDigits, 0, MAX_DIGITS * sizeof(unsigned long));
+   */
 
+   
    /* Perform the addition. */
    ulCarry = 0;
-   for (lIndex = 0; lIndex < lSumLength; lIndex++)
-   {
-      ulSum = ulCarry;
-      ulCarry = 0;
+   lIndex = 0;
+   
+  add_loop1:
+   if (lIndex >= lSumLength) goto add_endloop1;
 
-      ulSum += oAddend1->aulDigits[lIndex];
-      if (ulSum < oAddend1->aulDigits[lIndex]) /* Check for overflow. */
-         ulCarry = 1;
+   ulSum = ulCarry;
+   ulCarry = 0;
+   
+   ulSum += oAddend1->aulDigits[lIndex];
+   if (ulSum >= oAddend1->aulDigits[lIndex]) goto add_endif2;
+   ulCarry = 1;
+  add_endif2:
 
-      ulSum += oAddend2->aulDigits[lIndex];
-      if (ulSum < oAddend2->aulDigits[lIndex]) /* Check for overflow. */
-         ulCarry = 1;
+   ulSum += oAddend2->aulDigits[lIndex];
+   if (ulSum >= oAddend2->aulDigits[lIndex]) goto add_endif3;
+   ulCarry = 1;
+  add_endif3:
 
-      oSum->aulDigits[lIndex] = ulSum;
-   }
+   oSum->aulDigits[lIndex] = ulSum;
+   
+   lIndex++;
+   goto add_loop1;
+  add_endloop1:
 
+   
    /* Check for a carry out of the last "column" of the addition. */
-   if (ulCarry == 1)
-   {
-      if (lSumLength == MAX_DIGITS)
-         return FALSE;
-      oSum->aulDigits[lSumLength] = 1;
-      lSumLength++;
-   }
+   if (ulCarry != 1) goto add_endif4;
+
+   if (lSumLength != MAX_DIGITS) goto add_endif5;
+   return FALSE;
+  add_endif5:
+   oSum->aulDigits[lSumLength] = 1;
+   lSumLength++;
+  add_endif4:
 
    /* Set the length of the sum. */
    oSum->lLength = lSumLength;
