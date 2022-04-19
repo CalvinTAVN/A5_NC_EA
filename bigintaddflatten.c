@@ -21,10 +21,10 @@ static long BigInt_larger(long lLength1, long lLength2)
    if (lLength1 <= lLength2) goto larger_else;
    lLarger = lLength1;
    goto larger_endif;
-   
+
   larger_else:
    lLarger = lLength2;
-   
+
   larger_endif:
 
    return lLarger;
@@ -68,17 +68,17 @@ int BigInt_add(BigInt_T oAddend1, BigInt_T oAddend2, BigInt_T oSum)
       memset(oSum->aulDigits, 0, MAX_DIGITS * sizeof(unsigned long));
    */
 
-   
+
    /* Perform the addition. */
    ulCarry = 0;
    lIndex = 0;
-   
+
   add_loop1:
    if (lIndex >= lSumLength) goto add_endloop1;
 
    ulSum = ulCarry;
    ulCarry = 0;
-   
+
    ulSum += oAddend1->aulDigits[lIndex];
    if (ulSum >= oAddend1->aulDigits[lIndex]) goto add_endif2;
    ulCarry = 1;
@@ -90,12 +90,12 @@ int BigInt_add(BigInt_T oAddend1, BigInt_T oAddend2, BigInt_T oSum)
   add_endif3:
 
    oSum->aulDigits[lIndex] = ulSum;
-   
+
    lIndex++;
    goto add_loop1;
   add_endloop1:
 
-   
+
    /* Check for a carry out of the last "column" of the addition. */
    if (ulCarry != 1) goto add_endif4;
 
