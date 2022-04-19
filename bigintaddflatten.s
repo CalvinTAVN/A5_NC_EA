@@ -42,6 +42,41 @@ BigInt_larger:
 
         //long lLarger
 
-        //if ()
+        //if (lLength 1 <= lLength2) goto larger_else;
+        ldr x0, [sp, lLength1]
+        ldr x1, [sp, lLength2]
+        cmp x0, x1
+        ble larger_else
+
+        //lLarger = lLength1;
+        str x0, [sp, lLarger]
+
+        //goto larger_endif
+        b larger_endif
         
+larger_else:
+
+        //lLarger = lLength2
+        str x1, [sp, lLarger]   
+        
+larger_endif:
+
+        //epilog and return lLarger
+        ldr x0, [sp, lLarger]
+        ldr x30, [sp]
+        add sp, sp, LARGER_STACK_BYTECOUNT
+        ret
+
+        .size gcd, (. - BigInt_larger)
+
+
+
+
+        //
+
+
+
+
+
+
         
