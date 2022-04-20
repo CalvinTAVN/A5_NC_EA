@@ -200,9 +200,22 @@ add_loop1:
         add x0, x0, x1
         str x0, [sp, ulSum]
 
-        
-        
-        
+        //if (ulSum >= oAddend1->aulDigits[lIndex]) goto add_endif2;
+        ldr x0 [sp, ulSum]
+        //oAddend1 -> aulDigits[lIndex]
+        ldr x1, [sp, oAddend1]
+        add x1, x1, aulDigits //adds 8 bits to reach array
+        mov x2, lIndex //aulDigits index
+        ldr x1, [x1, x2, lsl 3] //left shift 3 to multiply by 8 for long length
+        //if statement
+        cmp x0, x1
+        bge add_endif2
+
+        //ulCarry = 1
+        ldr x0, [sp, ulCarry] //not sure if this is needed
+        mov x0, 1
+        str x0, [sp, ulCarry]
+
 add_endif2:
 add_endif3:
 add_endloop1:
