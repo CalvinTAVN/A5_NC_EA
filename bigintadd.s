@@ -163,8 +163,46 @@ BigInt_add:
 add_endif1:
 
         /* Perform the addition.*/
-        //
+        //ulCarry = 0;
+        ldr x0, [sp, ulCarry] //not sure if this is necessary, prob not
+        mov x0, 0
+        str x0, [sp, ulCarry]
+
+        //lIndex = 0;
+        ldr x0, [sp, lIndex] //not sure if this is necessary, prob not
+        mov x0, 0
+        str x0, [sp, lIndex]
+        
 add_loop1:
+
+        //if (lIndex >= lSumLength) goto add_endloop1;
+        ldr x0, [sp, lIndex]
+        ldr x1, [sp, lSumLength]
+        cmp x0, x1
+        bge add_endloop1
+
+        //ulSum = ulCarry;
+        ldr x0, [sp, ulCarry]
+        str x0, [sp, ulSum]
+
+        //ulCarry = 0;
+        mov x0, 0
+        str x0, [sp, ulCarry]
+
+        //ulSum += oAddend1->aulDigits[lIndex];
+        ldr x0, [sp, ulSum]
+        //oAddend1 -> aulDigits[lIndex]
+        ldr x1, [sp, oAddend1]
+        add x1, x1, aulDigits //adds 8 bits to reach array
+        mov x2, lIndex //aulDigits index
+        ldr x1, [x1, x2, lsl 3] //left shift 3 to multiply by 8 for long length
+        //+=
+        add x0, x0, x1
+        str x0, [sp, ulSum]
+
+        
+        
+        
 add_endif2:
 add_endif3:
 add_endloop1:
