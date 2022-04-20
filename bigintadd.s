@@ -85,6 +85,8 @@ larger_endif:
 
         //function of BigInt_add
 
+        .equ LONGSIZE, 8
+        .equ MAX_DIGITS, 32768
         //struct of BigInt_T is 8 bits for long lLength, and 262144 for the long array
 
         //Must be a multiple of 16
@@ -113,7 +115,78 @@ larger_endif:
         .equ oAddend1, 524344
         //goes up to 524344 + 262152 = 786496
 
+        //structural field offsets
+        //lLength is defaulted to 0
+        .equ lLength, 0
+        //so the array aulDigits starts at 8
+        .equ aulDigits, 8 
+        
 
+        
+BigInt_add:
+
+        //prolog
+        sub sp, sp, ADD_STACK_BYTECOUNT
+        st x30, [sp] //holds return address of BigInt_add I think
+        str x0, [sp, oAddend1] 
+        str x1, [sp, oAddend2]
+        str x2, [sp, oSum]
+
+
+        //unisgned long ulCarry;
+        //unsigned long ulSum;
+        //long lIndex;
+        //long lSumLength;
+
+        /* Determine the larger length.*/ //note lLength is the first 8 bytes
+        // in the struct
+        //lSumLength = BigInt_larger(oAddend1->lLength, oAddend2->lLength)
+        ldr x0, [sp, oAddend1]
+        ldr x1, [sp, oAddend2]
+        bl BigInt_Larger
+        str x0, [sp, lSumLength]
+
+        /* Clear oSum's array if necessary.*/
+        //if (oSum->lLength <= lSumLength) goto add_endif1;
+        ldr x0, [sp, oSum]
+        ldr x1, [sp, lSumLength]
+        cmp x0, x1
+        ble add_endif21
+
+        //memset(oSum->aulDigits, 0, MAX_DIGITS * sizeof(unsigned long));
+        ldr x0, [sp, oSum]
+        add x0, x0, aulDigits //go past 8 bits from lLength to reach array
+        mov x1, MAX_DIGITS
+        mul x1, x1, LONGSIZE
+        bl memset
+        
+add_endif1:
+
+        /* Perform the addition.*/
+        //
+add_loop1:
+add_endif2:
+add_endif3:
+add_endloop1:
+add_endif5:
+add_endif4:     
+
+
+
+        
+        
+        
+        
+
+
+
+
+
+
+
+        
+        
+        
 
         
         
@@ -125,6 +198,7 @@ larger_endif:
 
 
 
+        
 
 
         
