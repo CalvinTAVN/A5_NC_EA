@@ -193,8 +193,9 @@ add_loop1:
         ldr x0, [sp, ulSum]
         //oAddend1 -> aulDigits[lIndex]
         ldr x1, [sp, oAddend1]
+        ldr x2, [sp, lIndex]
         add x1, x1, aulDigits //adds 8 bits to reach array
-        mov x2, lIndex //aulDigits index
+        //mov x2, lIndex //aulDigits index
         ldr x1, [x1, x2, lsl 3] //left shift 3 to multiply by 8 for long length
         //+=
         add x0, x0, x1
@@ -204,8 +205,9 @@ add_loop1:
         ldr x0 [sp, ulSum]
         //oAddend1 -> aulDigits[lIndex]
         ldr x1, [sp, oAddend1]
+        ldr x2, [sp, lIndex]
         add x1, x1, aulDigits //adds 8 bits to reach array
-        mov x2, lIndex //aulDigits index
+        //mov x2, lIndex //aulDigits index
         ldr x1, [x1, x2, lsl 3] //left shift 3 to multiply by 8 for long length
         //if statement
         cmp x0, x1
@@ -217,9 +219,79 @@ add_loop1:
         str x0, [sp, ulCarry]
 
 add_endif2:
+
+        //ulSum += oAddend2->aulDigits[lIndex];
+        ldr x0, [sp, ulSum]
+        //oAddend2 -> aulDigits[lIndex]
+        ldr x1, [sp, oAddend2]
+        ldr x2, [sp, lIndex]
+        add x1, x1, aulDigits //adds 8 bits to reach array
+        //mov x2, lIndex //aulDigits index
+        ldr x1, [x1, x2, lsl 3] //left shift 3 to multiply by 8 for long length
+        //+=
+        add x0, x0, x1
+        str x0, [sp, ulSum]
+
+        //if (ulSum >= oAddend2->aulDigits[lIndex]) goto add_endif3;
+        ldr x0 [sp, ulSum]
+        //oAddend1 -> aulDigits[lIndex]
+        ldr x1, [sp, oAddend2]
+        ldr x2, [sp, lIndex]
+        add x1, x1, aulDigits //adds 8 bits to reach array
+        //mov x2, lIndex //aulDigits index
+        ldr x1, [x1, x2, lsl 3] //left shift 3 to multiply by 8 for long length
+        //if statement
+        cmp x0, x1
+        bge add_endif3
+
+        //ulCarry = 1
+        ldr x0, [sp, ulCarry] //not sure if this is needed
+        mov x0, 1
+        str x0, [sp, ulCarry]
+        
 add_endif3:
+
+        //oSum->aulDigits[lIndex] = ulSum
+        ldr x2, [sp, ulSum]
+        ldr x1, [sp, lIndex]
+        ldr x0, [sp, oSum]
+        add x0, x0, aulDigits
+        //mov x1, lIndex
+        str x2, [x0, x1, lsl 3]
+
+        
+        //lIndex++;
+        ldr x0, [sp, lIndex]
+        add x0, x0, 1
+        str x0, [sp, lIndex] 
+
+        //goto add_loop1;
+        b add_loop1
+        
 add_endloop1:
+
+        /* Check for a carry out of the last "column" of the addition. */
+        //if (ulCarry != 1) goto add_endif4;
+        ldr x0, [sp, ulCarry]
+        cmp x0, 1
+        bne add_endif4
+
+        //if (lSumLength != MAX_DIGITS) goto add_endif5;
+        ldr x0, [sp, lSumLength]
+        cmp x0, MAX_DIGITS
+        bne add_endif5
+
+        //return FALSE
+        mov x0, FALSE
+        ret
+        
 add_endif5:
+
+        //oSum->aulDigits[lSumLength] = 1;
+        ldr x0, [sp, oSum]
+        add x0, x0, aulDigits
+        mov x1, 
+        
 add_endif4:     
 
 
