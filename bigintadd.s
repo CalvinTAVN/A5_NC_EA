@@ -88,7 +88,7 @@ larger_endif:
         //struct of BigInt_T is 8 bits for long lLength, and 262144 for the long array
 
         //Must be a multiple of 16
-
+        .equ ADD_STACK_BYTECOUNT, 786496
 
         //local Variables offset
         .equ ulCarry, 8
@@ -99,9 +99,24 @@ larger_endif:
         .equ lSumLength, 32
 
         //Parametric offset , start at 40
-        .equ 
-        
+        //start of first 3rd struct, the whole size is stored on the heap, x0,
+        //x1, and x2, will likely represent the address of a specific struct,
+        //which is linked to the heap
 
+        //32768 * 8 = 262144 + 8 = 262152
+        .equ oSum, 40
+
+        //40 + 262152 = 262192
+        .equ oAddend2, 262192
+
+        //262192 + 262152 = 524344
+        .equ oAddend1, 524344
+        //goes up to 524344 + 262152 = 786496
+
+
+
+        
+        
 
 
 
