@@ -11,7 +11,7 @@ int main(void)
 {   
     int i, j, x;
 
-    for (i = 0; i < 1000; i++)
+    for (i = 0; i < 500; i++)
     {
         for (j = 0; j < 49; j++)
         {
@@ -29,9 +29,3 @@ int main(void)
     }
     return 0;
 }
-
-/*int argc, char **argv*/
-
-/*if ((x >= 0) && (x < ))*/
-            /*printf("%c\n", "");*/
-        /*else if*/
