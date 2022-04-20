@@ -90,8 +90,9 @@ larger_endif:
         //struct of BigInt_T is 8 bits for long lLength, and 262144 for the long array
 
         //Must be a multiple of 16
-        .equ ADD_STACK_BYTECOUNT, 786496
-
+        //.equ ADD_STACK_BYTECOUNT, 786496
+        .equ ADD_STACK_BYTECOUNT, 64
+        
         //local Variables offset
         .equ ulCarry, 8
         .equ ulSum, 16
@@ -109,15 +110,16 @@ larger_endif:
         .equ oSum, 40
 
         //40 + 262152 = 262192
-        .equ oAddend2, 262192
-
+        //.equ oAddend2, 262192
+        .equ oAddend2, 48
+        
         //262192 + 262152 = 524344
-        .equ oAddend1, 524344
+        //.equ oAddend1, 524344
         //goes up to 524344 + 262152 = 786496
-
+        .equ oAddend1, 56
+        
         //structural field offsets
-        //lLength is defaulted to 0
-        .equ lLength, 0
+        
         //so the array aulDigits starts at 8
         .equ aulDigits, 8 
         
@@ -127,7 +129,7 @@ BigInt_add:
 
         //prolog
         sub sp, sp, ADD_STACK_BYTECOUNT
-        st x30, [sp] //holds return address of BigInt_add I think
+        str x30, [sp] //holds return address of BigInt_add I think
         str x0, [sp, oAddend1] 
         str x1, [sp, oAddend2]
         str x2, [sp, oSum]
@@ -151,13 +153,14 @@ BigInt_add:
         ldr x0, [sp, oSum]
         ldr x1, [sp, lSumLength]
         cmp x0, x1
-        ble add_endif21
+        ble add_endif2
 
         //memset(oSum->aulDigits, 0, MAX_DIGITS * sizeof(unsigned long));
         ldr x0, [sp, oSum]
         add x0, x0, aulDigits //go past 8 bits from lLength to reach array
         mov x1, MAX_DIGITS
-        mul x1, x1, LONGSIZE
+        MOV x2, LONGSIZE
+        mul x1, x1, x2
         bl memset
         
 add_endif1:
@@ -202,7 +205,7 @@ add_loop1:
         str x0, [sp, ulSum]
 
         //if (ulSum >= oAddend1->aulDigits[lIndex]) goto add_endif2;
-        ldr x0 [sp, ulSum]
+        ldr x0, [sp, ulSum]
         //oAddend1 -> aulDigits[lIndex]
         ldr x1, [sp, oAddend1]
         ldr x2, [sp, lIndex]
@@ -233,7 +236,7 @@ add_endif2:
         str x0, [sp, ulSum]
 
         //if (ulSum >= oAddend2->aulDigits[lIndex]) goto add_endif3;
-        ldr x0 [sp, ulSum]
+        ldr x0, [sp, ulSum]
         //oAddend1 -> aulDigits[lIndex]
         ldr x1, [sp, oAddend2]
         ldr x2, [sp, lIndex]
@@ -293,7 +296,8 @@ add_endif5:
         ldr x1, [sp, lSumLength]
         ldr x0, [sp, oSum]
         add x0, x0, aulDigits
-        str 1, [x0, x1, lsl 3]
+        mov x2, 1
+        str x2, [x0, x1, lsl 3]
 
         //lSumLength++
         ldr x0, [sp, lSumLength]
