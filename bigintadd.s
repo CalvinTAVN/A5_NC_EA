@@ -9,9 +9,13 @@
         //no data since all are parameters, local variables
         .section .data
 
-        //no bss since all are paramters, local variables
+        //only BSS is the BigInt_T struct
         .section .bss
 
+//this is commented out since this file is not the one that creates the struct
+//BigInt_T:       .skip 262152
+
+        
         .section .text
 
         //macro for FALSE and TRUE
@@ -72,7 +76,43 @@ larger_endif:
 
 
 
-        //
+
+        //------------------------------------
+
+        /*Assign the sum of oAddend1 and oAddend2 to oSum.  oSum should be
+        distinct from oAddend1 and oAddend2.  Return 0 (FALSE) if an
+        overflow occurred, and 1 (TRUE) otherwise */
+
+        //function of BigInt_add
+
+        //struct of BigInt_T is 8 bits for long lLength, and 262144 for the long array
+
+        //Must be a multiple of 16
+
+
+        //local Variables offset
+        .equ ulCarry, 8
+        .equ ulSum, 16
+
+        //is long just by itself 8 bits?
+        .equ lIndex, 24
+        .equ lSumLength, 32
+
+        //Parametric offset , start at 40
+        .equ 
+        
+
+
+
+
+
+
+
+
+
+
+
+        
 
 
 
