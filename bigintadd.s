@@ -71,7 +71,7 @@ larger_endif:
         add sp, sp, LARGER_STACK_BYTECOUNT
         ret
 
-        .size gcd, (. - BigInt_larger)
+        .size BigInt_larger, (. - BigInt_larger)
 
 
 
@@ -281,19 +281,40 @@ add_endloop1:
         cmp x0, MAX_DIGITS
         bne add_endif5
 
-        //return FALSE
+        //return FALSE and epilog
         mov x0, FALSE
+        ldr x30, [sp]
+        add sp, sp, ADD_STACK_BYTECOUNT
         ret
         
 add_endif5:
 
         //oSum->aulDigits[lSumLength] = 1;
+        ldr x1, [sp, lSumLength]
         ldr x0, [sp, oSum]
         add x0, x0, aulDigits
-        mov x1, 
-        
+        str 1, [x0, x1, lsl 3]
+
+        //lSumLength++
+        ldr x0, [sp, lSumLength]
+        add x0, x0, 1
+        str x0, [sp, lSumLength]
+
 add_endif4:     
 
+        /* Set the length of the sum. */
+        //oSum->lLength = lSumLength;
+        ldr x1, [sp, lSumLength]
+        str x1, [sp, oSum] //lLength is the first 8 bits of oSum
+
+        //return TRUE and epilog
+        mov x0, TRUE
+        ldr x30, [sp]
+        add sp, sp, ADD_STACK_BYTECOUNT
+        ret
+
+
+        .size BigInt_add, (. - BigInt_add)
 
 
         
