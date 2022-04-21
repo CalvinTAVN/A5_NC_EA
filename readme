@@ -63,7 +63,8 @@ None
 Student 1: What is your assessment of the assignment? Was it helpful?
 Was it fun?
 
-
+It was slightly fun although frustrating, however it was useful
+in understanding efficiency.
 
 ------------------------------------------------------------------------
 Student 2: What is your assessment of the assignment? Was it helpful?
@@ -77,6 +78,9 @@ how to make thorough test files and of coding in assembly has improved.
 will help your grader to grade it in the most favorable light? In
 particular, what bugs are in your submission?
 
+For 2E, we thought we had to optimize it further to get a faster time.
+So we used Registers 26-28 in BigInt_add to further speed up the
+.s file, which it did.
 
 
 ------------------------------------------------------------------------
