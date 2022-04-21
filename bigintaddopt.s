@@ -48,13 +48,10 @@ BigInt_larger:
         //long lLarger
 
         //if (lLength 1 <= lLength2) goto larger_else;
-        //ldr x0, [sp, lLength1]
-        //ldr x1, [sp, lLength2]
         cmp LLENGTH1, LLENGTH2 
         ble larger_else
 
         //lLarger = lLength1;
-        //str x0, [sp, lLarger]
         mov LLARGER, LLENGTH1
         
         //goto larger_endif
@@ -62,17 +59,12 @@ BigInt_larger:
         
 larger_else:
 
-        //lLarger = lLength2
-        //str x1, [sp, lLarger]   
+        //lLarger = lLength2   
         mov LLARGER, LLENGTH2
         
 larger_endif:
 
         //epilog and return lLarger
-        //ldr x0, [sp, lLarger]
-        //ldr x30, [sp]
-        //add sp, sp, LARGER_STACK_BYTECOUNT
-        //ret
         mov x0, LLARGER
         ldr x30, [sp]
         ldr x19, [sp, 8]
@@ -97,46 +89,28 @@ larger_endif:
 
         .equ LONGSIZE, 8
         .equ MAX_DIGITS, 32768
-        //struct of BigInt_T is 8 bits for long lLength, and 262144 for the long array
 
         //Must be a multiple of 16
-        //.equ ADD_STACK_BYTECOUNT, 786496
         .equ ADD_STACK_BYTECOUNT, 64
         
         //local Variables offset
 
-        //.equ ulCarry, 8
         ULCARRY .req x25
         
-        //.equ ulSum, 16
         ULSUM .req x24
         
-        //is long just by itself 8 bits?
-        //.equ lIndex, 24
         LINDEX .req x23
         
-        //.equ lSumLength, 32
         LSUMLENGTH .req x22
-        
-        //Parametric offset , start at 40
-        //start of first 3rd struct, the whole size is stored on the heap, x0,
-        //x1, and x2, will likely represent the address of a specific struct,
-        //which is linked to the heap
 
-        //32768 * 8 = 262144 + 8 = 262152
-        //.equ oSum, 40
-        OSUM .req x21
         
-        //40 + 262152 = 262192
-        //.equ oAddend2, 262192
-        //.equ oAddend2, 48
+        //Parametric offset 
+        OSUM .req x21
+       
         OADDEND2 .req x20
         
-        //262192 + 262152 = 524344
-        //.equ oAddend1, 524344
-        //goes up to 524344 + 262152 = 786496
-        //.equ oAddend1, 56
         OADDEND1 .req x19
+
         
         //structural field offsets
         .equ LLENGTHOFFSET, 0
@@ -150,10 +124,7 @@ BigInt_add:
 
         //prolog
         sub sp, sp, ADD_STACK_BYTECOUNT
-        str x30, [sp] //holds return address of BigInt_add I think
-        //str x0, [sp, oAddend1] 
-        //str x1, [sp, oAddend2]
-        //str x2, [sp, oSum]
+        str x30, [sp] 
         str x19, [sp, 8]
         str x20, [sp, 16]
         str x21, [sp, 24]
@@ -176,101 +147,54 @@ BigInt_add:
         /* Determine the larger length.*/ //note lLength is the first 8 bytes
         // in the struct
         //lSumLength = BigInt_larger(oAddend1->lLength, oAddend2->lLength)
-        //mov x2, lLengthOffSet
-        //ldr x0, [sp, oAddend1]
-        //ldr x0, [x0, x2, lsl 3]
-        //ldr x1, [sp, oAddend2]
-        //ldr x1, [x1, x2, lsl 3]
-        //bl BigInt_larger
-        //str x0, [sp, lSumLength]
-        ldr x0, [OADDEND1] //length is at the start, so no need to offset
-        ldr x1, [OADDEND2]
+        ldr x0, [OADDEND1, LLENGTHOFFSET] //length is at the start, so no need to offset
+        ldr x1, [OADDEND2, LLENGTHOFFSET]
         bl BigInt_larger
         mov LSUMLENGTH, x0
         
 
         /* Clear oSum's array if necessary.*/
         //if (oSum->lLength <= lSumLength) goto add_endif1;
-        //ldr x0, [sp, oSum]
-        //ldr x0, [x0]
-        //ldr x1, [sp, lSumLength]
-        //cmp x0, x1
-        //ble add_endif1
         ldr x0, [OSUM, LLENGTHOFFSET] //length is at start so no need to offset
         cmp x0, LSUMLENGTH
         ble add_endif1
         
         
         //memset(oSum->aulDigits, 0, MAX_DIGITS * sizeof(unsigned long));
-        //ldr x0, [sp, oSum]
-        //add x0, x0, aulDigits //go past 8 bits from lLength to reach array
-        //mov x1, 0
-        //mov x2, MAX_DIGITS
-        //MOV x3, 8
-        //mul x2, x2, x3
-        //bl memset
         mov x0, OSUM
-        add x0, x0, 8
+        add x0, x0, LONGSIZE
         mov x1, 0
-        mov x2, MAX_DIGITS * 8
+        mov x2, MAX_DIGITS * LONGSIZE
         bl memset
         
 add_endif1:
 
         /* Perform the addition.*/
         //ulCarry = 0;
-        //ldr x0, [sp, ulCarry] //not sure if this is necessary, prob not
-        //mov x0, 0
-        //str x0, [sp, ulCarry]
         mov ULCARRY, 0
 
         //lIndex = 0;
-        // ldr x0, [sp, lIndex] //not sure if this is necessary, prob not
-        //mov x0, 0
-        //str x0, [sp, lIndex]
         mov LINDEX, 0
         
 add_loop1:
 
         //if (lIndex >= lSumLength) goto add_endloop1;
-        //ldr x0, [sp, lIndex]
-        //ldr x1, [sp, lSumLength]
-        //cmp x0, x1
-        //bge add_endloop1
         cmp LINDEX, LSUMLENGTH
         bge add_endloop1
 
         //ulSum = ulCarry;
-        //ldr x0, [sp, ulCarry]
-        //str x0, [sp, ulSum]
         mov ULSUM, ULCARRY
         
         //ulCarry = 0;
-        //mov x0, 0
-        //str x0, [sp, ulCarry]
         mov ULCARRY, 0
         
         //ulSum += oAddend1->aulDigits[lIndex];
-        //ldr x0, [sp, ulSum]
-        //ldr x1, [sp, oAddend1]
-        //ldr x2, [sp, lIndex]
-        //add x1, x1, aulDigits //adds 8 bits to reach array
-        //ldr x1, [x1, x2, lsl 3] //left shift 3 to multiply by 8 for long length
-        //add x0, x0, x1
-        //str x0, [sp, ulSum]
         mov x0, OADDEND1
         add x0, x0, AULDIGITS
         ldr x0, [x0, LINDEX, lsl 3]
         add ULSUM, ULSUM, x0
 
         //if (ulSum >= oAddend1->aulDigits[lIndex]) goto add_endif2;
-        //ldr x0, [sp, ulSum]
-        //ldr x1, [sp, oAddend1]
-        //ldr x2, [sp, lIndex]
-        //add x1, x1, aulDigits //adds 8 bits to reach array
-        //ldr x1, [x1, x2, lsl 3] //left shift 3 to multiply by 8 for long length
-        //cmp x0, x1
-        //bhs  add_endif2
         mov x0, OADDEND1
         add x0, x0, AULDIGITS
         ldr x0, [x0, LINDEX, lsl 3]
@@ -278,22 +202,12 @@ add_loop1:
         bhs add_endif2
         
         //ulCarry = 1
-        //ldr x0, [sp, ulCarry] //not sure if this is needed
-        //mov x0, 1
-        //str x0, [sp, ulCarry]
         mov ULCARRY, 1
         
         
 add_endif2:
 
         //ulSum += oAddend2->aulDigits[lIndex];
-        //ldr x0, [sp, ulSum]
-        //ldr x1, [sp, oAddend2]
-        //ldr x2, [sp, lIndex]
-        //add x1, x1, aulDigits //adds 8 bits to reach array
-        //ldr x1, [x1, x2, lsl 3] //left shift 3 to multiply by 8 for long length
-        //add x0, x0, x1
-        //str x0, [sp, ulSum]
         mov x0, OADDEND2
         add x0, x0, AULDIGITS
         ldr x0, [x0, LINDEX, lsl 3]
@@ -301,13 +215,6 @@ add_endif2:
         
 
         //if (ulSum >= oAddend2->aulDigits[lIndex]) goto add_endif3;
-        //ldr x0, [sp, ulSum]
-        //ldr x1, [sp, oAddend2]
-        //ldr x2, [sp, lIndex]
-        //add x1, x1, aulDigits //adds 8 bits to reach array
-        //ldr x1, [x1, x2, lsl 3] //left shift 3 to multiply by 8 for long length
-        //cmp x0, x1
-        //bhs add_endif3
         mov x1, OADDEND2
         add x1, x1, AULDIGITS
         ldr x1, [x1, LINDEX, lsl 3]
@@ -317,30 +224,17 @@ add_endif2:
         
         
         //ulCarry = 1
-        //ldr x0, [sp, ulCarry] //not sure if this is needed
-        //mov x0, 1
-        //str x0, [sp, ulCarry]
         mov ULCARRY, 1
 
         
 add_endif3:
 
-        //oSum->aulDigits[lIndex] = ulSum
-        //ldr x2, [sp, ulSum]
-        //ldr x1, [sp, lIndex]
-        //ldr x0, [sp, oSum]
-        //add x0, x0, aulDigits
-        //mov x1, lIndex
-        //str x2, [x0, x1, lsl 3]
         mov x0, OSUM
         add x0, x0, AULDIGITS
         str ULSUM, [x0, LINDEX, lsl 3]
         
         
         //lIndex++;
-        //ldr x0, [sp, lIndex]
-        //add x0, x0, 1
-        //str x0, [sp, lIndex] 
         add LINDEX, LINDEX, 1
         
         //goto add_loop1;
@@ -350,16 +244,10 @@ add_endloop1:
 
         /* Check for a carry out of the last "column" of the addition. */
         //if (ulCarry != 1) goto add_endif4;
-        //ldr x0, [sp, ulCarry]
-        //cmp x0, 1
-        //bne add_endif4
         cmp ULCARRY, 1
         bne add_endif4
         
         //if (lSumLength != MAX_DIGITS) goto add_endif5;
-        //ldr x0, [sp, lSumLength]
-        //cmp x0, MAX_DIGITS
-        //bne add_endif5
         cmp LSUMLENGTH, MAX_DIGITS
         bne add_endif5
         
@@ -379,11 +267,6 @@ add_endloop1:
 add_endif5:
 
         //oSum->aulDigits[lSumLength] = 1;
-        //ldr x1, [sp, lSumLength]
-        //ldr x0, [sp, oSum]
-        //add x0, x0, aulDigits
-        //mov x2, 1
-        //str x2, [x0, x1, lsl 3]
         mov x0, OSUM
         add x0, x0, AULDIGITS
         mov x1, 1
@@ -391,18 +274,12 @@ add_endif5:
         
         
         //lSumLength++
-        //ldr x0, [sp, lSumLength]
-        //add x0, x0, 1
-        //str x0, [sp, lSumLength]
         add LSUMLENGTH, LSUMLENGTH, 1
 
 add_endif4:     
         //update
         /* Set the length of the sum. */
         //oSum->lLength = lSumLength;
-        //ldr x0, [sp, oSum]
-        //ldr x1, [sp, lSumLength]
-        //str x1, [x0]
         str LSUMLENGTH, [OSUM, LLENGTHOFFSET]
         
         //return TRUE and epilog
