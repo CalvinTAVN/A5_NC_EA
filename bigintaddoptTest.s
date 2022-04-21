@@ -21,9 +21,10 @@
         //Returns the larger of lLength1 and lLength2
         //function of BigInt_larger(long lLength1, long lLength2)
 
-        // Must be a Multiple of 16
-        .equ LARGER_STACK_BYTECOUNT, 32 
+        // Must be a Multiple of 16 //was 32
+        .equ LARGER_STACK_BYTECOUNT, 32
         
+
         //Local Variables in BigInt_larger stack offset
         LLARGER .req x21 //Callee-saved
         
@@ -40,15 +41,15 @@ BigInt_larger:
         str x19, [sp, 8]
         str x20, [sp, 16]
         str x21, [sp, 24]
-
+        str x19, [sp, 8]
         //store parameters in registers
-        mov LLENGTH1, x0
+        mov LLENGTH1, x0 
         mov LLENGTH2, x1
         
         //long lLarger
 
         //if (lLength 1 <= lLength2) goto larger_else;
-        cmp LLENGTH1, LLENGTH2 
+        cmp LLENGTH1, LLENGTH2
         ble larger_else
 
         //lLarger = lLength1;
@@ -91,7 +92,7 @@ larger_endif:
         .equ MAX_DIGITS, 32768
 
         //Must be a multiple of 16
-        .equ ADD_STACK_BYTECOUNT, 64
+        .equ ADD_STACK_BYTECOUNT, 96
         
         //local Variables offset
 
@@ -111,6 +112,11 @@ larger_endif:
         
         OADDEND1 .req x19
 
+        //new Registers to compute +8 to BigInt objects to reach
+        //arrays
+        OADDENDARRAY1 .req x26
+        OADDENDARRAY2 .req x27
+        OSUMARRAY .req x28
         
         //structural field offsets
         .equ LLENGTHOFFSET, 0
@@ -132,11 +138,23 @@ BigInt_add:
         str x23, [sp, 40]
         str x24, [sp, 48]
         str x25, [sp, 56]
+        str x26, [sp, 64]
+        str x27, [sp, 72]
+        str x28, [sp, 80]
 
         //Store parameters in registers
         mov OADDEND1, x0
         mov OADDEND2, x1
-        MOV OSUM, x2
+        mov OSUM, x2
+
+        //store auldigit arrays in registers
+        add x3, x0, 8
+        mov OADDENDARRAY1, x3
+        add x3, x1, 8
+        mov OADDENDARRAY2, x3
+        add x3, x2, 8
+        mov OSUMARRAY, x3
+        
         
         
         //unsigned long ulCarry;
@@ -147,22 +165,21 @@ BigInt_add:
         /* Determine the larger length.*/ //note lLength is the first 8 bytes
         // in the struct
         //lSumLength = BigInt_larger(oAddend1->lLength, oAddend2->lLength)
-        ldr x0, [OADDEND1, LLENGTHOFFSET] //length is at the start, so no need to offset
-        ldr x1, [OADDEND2, LLENGTHOFFSET]
+        ldr x0, [x0] //length is at the start, so no need to offset
+        ldr x1, [x1]
         bl BigInt_larger
         mov LSUMLENGTH, x0
         
 
         /* Clear oSum's array if necessary.*/
         //if (oSum->lLength <= lSumLength) goto add_endif1;
-        ldr x0, [OSUM, LLENGTHOFFSET] //length is at start so no need to offset
+        ldr x0, [OSUM] //length is at start so no need to offset
         cmp x0, LSUMLENGTH
         ble add_endif1
         
         
         //memset(oSum->aulDigits, 0, MAX_DIGITS * sizeof(unsigned long));
-        mov x0, OSUM
-        add x0, x0, LONGSIZE
+        mov x0, OSUMARRAY
         mov x1, 0
         mov x2, MAX_DIGITS * LONGSIZE
         bl memset
@@ -189,15 +206,11 @@ add_loop1:
         mov ULCARRY, 0
         
         //ulSum += oAddend1->aulDigits[lIndex];
-        mov x0, OADDEND1
-        add x0, x0, AULDIGITS
-        ldr x0, [x0, LINDEX, lsl 3]
+        ldr x0, [OADDENDARRAY1, LINDEX, lsl 3]
         add ULSUM, ULSUM, x0
 
         //if (ulSum >= oAddend1->aulDigits[lIndex]) goto add_endif2;
-        mov x0, OADDEND1
-        add x0, x0, AULDIGITS
-        ldr x0, [x0, LINDEX, lsl 3]
+        ldr x0, [OADDENDARRAY1, LINDEX, lsl 3]
         cmp ULSUM, x0
         bhs add_endif2
         
@@ -208,16 +221,12 @@ add_loop1:
 add_endif2:
 
         //ulSum += oAddend2->aulDigits[lIndex];
-        mov x0, OADDEND2
-        add x0, x0, AULDIGITS
-        ldr x0, [x0, LINDEX, lsl 3]
+        ldr x0, [OADDENDARRAY2, LINDEX, lsl 3]
         add ULSUM, ULSUM, x0
         
 
         //if (ulSum >= oAddend2->aulDigits[lIndex]) goto add_endif3;
-        mov x1, OADDEND2
-        add x1, x1, AULDIGITS
-        ldr x1, [x1, LINDEX, lsl 3]
+        ldr x1, [OADDENDARRAY2, LINDEX, lsl 3]
         cmp ULSUM, x1
         bhs add_endif3
         
@@ -229,9 +238,8 @@ add_endif2:
         
 add_endif3:
 
-        mov x0, OSUM
-        add x0, x0, AULDIGITS
-        str ULSUM, [x0, LINDEX, lsl 3]
+        //oSum->aulDigits[lIndex] = ulSum
+        str ULSUM, [OSUMARRAY, LINDEX, lsl 3]
         
         
         //lIndex++;
@@ -261,16 +269,17 @@ add_endloop1:
         ldr x23, [sp, 40]
         ldr x24, [sp, 48]
         ldr x25, [sp, 56]
+        ldr x26, [sp, 64]
+        ldr x27, [sp, 72]
+        ldr x28, [sp, 80]
         add sp, sp, ADD_STACK_BYTECOUNT
         ret
         
 add_endif5:
 
         //oSum->aulDigits[lSumLength] = 1;
-        mov x0, OSUM
-        add x0, x0, AULDIGITS
         mov x1, 1
-        str x1, [x0, LSUMLENGTH, lsl 3]
+        str x1, [OSUMARRAY, LSUMLENGTH, lsl 3]
         
         
         //lSumLength++
@@ -280,7 +289,7 @@ add_endif4:
         //update
         /* Set the length of the sum. */
         //oSum->lLength = lSumLength;
-        str LSUMLENGTH, [OSUM, LLENGTHOFFSET]
+        str LSUMLENGTH, [OSUM]
         
         //return TRUE and epilog
         mov x0, TRUE
@@ -292,6 +301,9 @@ add_endif4:
         ldr x23, [sp, 40]
         ldr x24, [sp, 48]
         ldr x25, [sp, 56]
+        ldr x26, [sp, 64]
+        ldr x27, [sp, 72]
+        ldr x28, [sp, 80]
         add sp, sp, ADD_STACK_BYTECOUNT
         ret
 
