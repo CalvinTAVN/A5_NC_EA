@@ -15,7 +15,7 @@ int main(void)
     {
         for (j = 0; j < 49; j++)
         {
-            x = (rand() % 127) + 30;
+            x = (rand() % 97) + 30;
             if ((x >= 32) && (x <=126))
             {
                 putchar(x);
