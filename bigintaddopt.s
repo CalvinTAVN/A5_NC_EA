@@ -1,7 +1,7 @@
-\0                              //136;0c
+        //---------------------------------------
         //bigintadd.s
         //Authors: Calvin Nguyen and Alex Eng
-        //
+        //------------------------------------------
 
         //No RODATA
         .section .rodata
