@@ -179,12 +179,12 @@ add_endif1:
 
         /* Perform the addition.*/
         //ulCarry = 0;
-        ldr x0, [sp, ulCarry] //not sure if this is necessary, prob not
+        //ldr x0, [sp, ulCarry] //not sure if this is necessary, prob not
         mov x0, 0
         str x0, [sp, ulCarry]
 
         //lIndex = 0;
-        ldr x0, [sp, lIndex] //not sure if this is necessary, prob not
+        // ldr x0, [sp, lIndex] //not sure if this is necessary, prob not
         mov x0, 0
         str x0, [sp, lIndex]
         
