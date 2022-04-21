@@ -23,7 +23,6 @@ lWordCount:
 lCharCount:
         .quad 0
 
-//Is this allowed?
 iInWord:
         .word FALSE
 
@@ -58,48 +57,6 @@ main:
         sub sp, sp, MAIN_STACK_BYTECOUNT
         str x30, [sp]
         
-
-/*
-inside main, while loop underneath
-
-
-whileLoopStart1:
-        if ((! (iChar = getchar()) != EOF)) goto endwhile1 ;
-
-        lCharCount++            ;
-        if (! isspace(iChar)) goto else11 ;
-                if (! inWord) goto endif21;
-
-                lwordCount++    ;
-                iInWord = FALSE ;
-                goto endif21       ;
-
-        
-else11:  
-        if (iInWord) goto endif21;
-
-                iInWord = TRUE  ;
-                goto endif21       ;
-
-
-endif21:
-        if(! (iChar == '\n')) goto whileLoopStart1 ;
-                1LineCount++    ;
-                goto whileLoopStart1 ;
-
-
-endWhile1:      
-
-        if (! iInWord) goto endif31 ;
-
-                lWordCount++    ;
-                goto endif31    ;
-
-endif31:
-
-        printf("%7ld %7ld %7ld\n", lLineCount, lWordCount, lCharCount) ;
-        return 0
-        */
 
 whileLoopStart1:
 
