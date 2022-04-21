@@ -162,6 +162,7 @@ BigInt_add:
         /* Clear oSum's array if necessary.*/
         //if (oSum->lLength <= lSumLength) goto add_endif1;
         ldr x0, [sp, oSum]
+        ldr x0, [x0]
         ldr x1, [sp, lSumLength]
         cmp x0, x1
         ble add_endif1
