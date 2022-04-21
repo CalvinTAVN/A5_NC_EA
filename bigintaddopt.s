@@ -229,6 +229,7 @@ add_endif2:
         
 add_endif3:
 
+        //oSum->aulDigits[lIndex] = ulSum
         mov x0, OSUM
         add x0, x0, AULDIGITS
         str ULSUM, [x0, LINDEX, lsl 3]
