@@ -319,9 +319,12 @@ add_endif4:
 
         /* Set the length of the sum. */
         //oSum->lLength = lSumLength;
+        //ldr x1, [sp, lSumLength]
+        //str x1, [sp, oSum] //lLength is the first 8 bits of oSum
+        ldr x0, [sp, oSum]
         ldr x1, [sp, lSumLength]
-        str x1, [sp, oSum] //lLength is the first 8 bits of oSum
-
+        str x1, [x0]
+        
         //return TRUE and epilog
         mov x0, TRUE
         ldr x30, [sp]
