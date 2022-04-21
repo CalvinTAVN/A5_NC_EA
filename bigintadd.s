@@ -12,8 +12,6 @@
         //only BSS is the BigInt_T struct
         .section .bss
 
-//this is commented out since this file is not the one that creates the struct
-//BigInt_T:       .skip 262152
 
         
         .section .text
@@ -97,7 +95,6 @@ larger_endif:
         .equ ulCarry, 8
         .equ ulSum, 16
 
-        //is long just by itself 8 bits?
         .equ lIndex, 24
         .equ lSumLength, 32
 
@@ -144,11 +141,7 @@ BigInt_add:
         /* Determine the larger length.*/ //note lLength is the first 8 bytes
         // in the struct
         //lSumLength = BigInt_larger(oAddend1->lLength, oAddend2->lLength)
-      /*  mov x2, lLengthOffSet
-        ldr x0, [sp, oAddend1, lsl 3]
-        ldr x1, [sp, oAddend2, lsl 3]
-        bl BigInt_larger
-        str x0, [sp, lSumLength]*/
+      
 
         mov x2, lLengthOffSet
         ldr x0, [sp, oAddend1]
@@ -180,12 +173,10 @@ add_endif1:
 
         /* Perform the addition.*/
         //ulCarry = 0;
-        //ldr x0, [sp, ulCarry] //not sure if this is necessary, prob not
         mov x0, 0
         str x0, [sp, ulCarry]
 
         //lIndex = 0;
-        // ldr x0, [sp, lIndex] //not sure if this is necessary, prob not
         mov x0, 0
         str x0, [sp, lIndex]
         
@@ -231,7 +222,6 @@ add_loop1:
         bhs  add_endif2
         
         //ulCarry = 1
-        //ldr x0, [sp, ulCarry] //not sure if this is needed
         mov x0, 1
         str x0, [sp, ulCarry]
 
@@ -263,7 +253,6 @@ add_endif2:
         bhs add_endif3
         
         //ulCarry = 1
-        //ldr x0, [sp, ulCarry] //not sure if this is needed
         mov x0, 1
         str x0, [sp, ulCarry]
         
