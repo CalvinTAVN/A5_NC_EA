@@ -119,7 +119,7 @@ larger_endif:
         .equ oAddend1, 56
         
         //structural field offsets
-        
+        .equ lLengthOffSet, 0
         //so the array aulDigits starts at 8
         .equ aulDigits, 8 
         
@@ -144,10 +144,20 @@ BigInt_add:
         /* Determine the larger length.*/ //note lLength is the first 8 bytes
         // in the struct
         //lSumLength = BigInt_larger(oAddend1->lLength, oAddend2->lLength)
+      /*  mov x2, lLengthOffSet
+        ldr x0, [sp, oAddend1, lsl 3]
+        ldr x1, [sp, oAddend2, lsl 3]
+        bl BigInt_larger
+        str x0, [sp, lSumLength]*/
+
+        mov x2, lLengthOffSet
         ldr x0, [sp, oAddend1]
+        ldr x0, [x0, x2, lsl 3]
         ldr x1, [sp, oAddend2]
+        ldr x1, [x1, x2, lsl 3]
         bl BigInt_larger
         str x0, [sp, lSumLength]
+        
 
         /* Clear oSum's array if necessary.*/
         //if (oSum->lLength <= lSumLength) goto add_endif1;
