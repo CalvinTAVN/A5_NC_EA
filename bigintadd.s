@@ -228,7 +228,7 @@ add_loop1:
         cmp x0, x1
         //changed
         bhs  add_endif2
-
+        
         //ulCarry = 1
         ldr x0, [sp, ulCarry] //not sure if this is needed
         mov x0, 1
@@ -260,7 +260,7 @@ add_endif2:
         cmp x0, x1
         //changed since ulSum and aulDigits longs are unsigned
         bhs add_endif3
-
+        
         //ulCarry = 1
         ldr x0, [sp, ulCarry] //not sure if this is needed
         mov x0, 1
