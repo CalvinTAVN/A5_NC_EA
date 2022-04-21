@@ -319,7 +319,7 @@ add_endif5:
         str x0, [sp, lSumLength]
 
 add_endif4:     
-
+        //update
         /* Set the length of the sum. */
         //oSum->lLength = lSumLength;
         //ldr x1, [sp, lSumLength]
