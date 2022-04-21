@@ -226,7 +226,8 @@ add_loop1:
         ldr x1, [x1, x2, lsl 3] //left shift 3 to multiply by 8 for long length
         //if statement
         cmp x0, x1
-        bge add_endif2
+        //changed
+        bhs  add_endif2
 
         //ulCarry = 1
         ldr x0, [sp, ulCarry] //not sure if this is needed
@@ -257,7 +258,8 @@ add_endif2:
         ldr x1, [x1, x2, lsl 3] //left shift 3 to multiply by 8 for long length
         //if statement
         cmp x0, x1
-        bge add_endif3
+        //changed since ulSum and aulDigits longs are unsigned
+        bhs add_endif3
 
         //ulCarry = 1
         ldr x0, [sp, ulCarry] //not sure if this is needed
