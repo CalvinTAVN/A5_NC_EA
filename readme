@@ -13,7 +13,7 @@ Alex Eng
 ------------------------------------------------------------------------
 How many late days are you using on this assignment?
 
-
+0
 
 ------------------------------------------------------------------------
 Student 1: What authorized sources of information did you use to
@@ -29,7 +29,7 @@ complete the assignment? COPY THE LIST of authorized sources of
 information given in the "Policies" web page to this section of the
 readme file, and edit it as appropriate.
 
-
+Course instructors, lab TAs in the lab, course texts and handouts.
 
 ------------------------------------------------------------------------
 Student 1: What unauthorized sources of information did you use to
@@ -57,7 +57,7 @@ nature of the interaction, may additionally require the interaction
 being reported to the Committee on Discipline. Write "None" if you used
 no unauthorized sources of information.
 
-
+None
 
 ------------------------------------------------------------------------
 Student 1: What is your assessment of the assignment? Was it helpful?
@@ -81,7 +81,120 @@ particular, what bugs are in your submission?
 ------------------------------------------------------------------------
 What is your mywc program test plan?
 
+Below are the descriptions of our mywc test files (tests are listed in 
+order of complexity):
 
+Boundary tests:
+
+mywcEmpty.txt: A completely empty txt file. This tests the boundary 
+condition of 0 characters, 0 words, and 0 lines in a file.
+
+mywc1space.txt: A txt file containing only a single space. This tests 
+the boundary condition of 1 character (a space), 0 words, and 0 lines 
+in a file.
+
+mywc1char.txt: A txt file containing only a single, non-whitespace 
+character. This tests the boundary condition of 1 character, 1 word, 
+and 0 lines in a file.
+
+mywc1newline.txt: A txt file containing only a single newline character.
+This tests the boundary condition of 1 character (a newline), 0 words, 
+and 1 line in a file.
+
+mywc1word.txt: A txt file containing only 2 non-whitespace characters. 
+This tests the boundary condition of 2 characters, 1 word, and 0 lines 
+in a file.
+
+mywc1space1newline.txt: A txt file containing a single space followed by
+a newline character. This tests the boundary condition of 2 characters 
+(a space and a newline), 0 words, and 1 line in a file.
+
+mywc1char1newline.txt: A txt file containing a single non-whitespace
+character followed by a newline character. This tests the boundary 
+condition of 2 characters (a non-whitespace and newline character), 1 
+word, and 1 line in a file.
+
+mywc1char1space.txt: A txt file containing a single non-whitespace
+character followed by a space. This tests the boundary condition of 2 
+characters (a non-whitespace character and a space), 1 word, and 0 
+lines in a file.
+
+mywc1word1newline.txt: A txt file containing 2 non-whitespace characters 
+followed by a newline character. This tests the boundary condition of 3 
+characters (2 non-whitespace and a newline character), 1 word, and 1 
+line in a file.
+
+mywc1word1space.txt: A txt file containing 2 non-whitespace characters 
+followed by a space. This tests the boundary condition of 3 characters 
+(2 non-whitespace characters and a space), 1 word, and 0 lines in a 
+file.
+
+mywc1newline1space1char.txt: A txt file containing a single newline, 
+followed by a space, followed by a non-whitespace character. This 
+tests the boundary condition of 3 characters (a newline, a space, 
+and a non-whitespace character), 1 word, and 1 line in a file.
+
+mywc1space1word1newline.txt: A txt file containing a space, followed 
+by 2 non-whitespace characters, followed by a newline. This tests the 
+boundary condition of 4 characters (a space, 2 non-whitespace, and a 
+newline character), 1 word, and 1 line in a file.
+
+Statement tests:
+
+mywcifspace.txt: This file contains 10 consecutive spaces (0 lines, 0 
+words, 10 characters), and so causes the computer to execute lines 6, 
+7, 12, 16-20, 28-36, 48, 52, 55, and 56 of the given mywc.c.
+
+mywcifchar.txt: This file contains 10 consecutive non-whitespace 
+characters (0 lines, 1 word, 10 characters), and so causes the computer
+to execute lines 6, 7, 12, 16-20, 28-34, 42-48, and 52-56 of the given 
+mywc.c.
+
+mywcifnewline.txt: This file contains 10 consecutive newline characters 
+(10 lines, 0 words, 10 characters), and so causes the computer
+to execute lines 6, 7, 12, 16-20, 28-36, 48-52, 55, and 56 of the given 
+mywc.c.
+
+mywcifspaceifchar.txt: This file contains alternating groups of spaces 
+and non-whitespace characters (0 lines, 4 words, 10 characters), and 
+so causes the computer to execute lines 6, 7, 12, 16-20, 28-48, and 
+52-56 of the given mywc.c.
+
+mywcifspaceifnewline.txt: This file contains alternating groups of 
+spaces and newline characters (10 lines, 0 words, 65 characters), and so 
+causes the computer to execute lines 6, 7, 12, 16-20, 28-36, 48-52, 55, 
+and 56 of the given mywc.c.
+
+mywcifcharifnewline.txt: This file contains alternating non-whitespace 
+characters and newline characters (10 lines, 10 words, 20 characters), 
+and so causes the computer to execute lines 6, 7, 12, 16-20, and 28-56 
+of the given mywc.c.
+
+mywcifall1line.txt: This file contains spaces, non-whitespace 
+characters, and 1 newline character, and so causes the computer to 
+execute lines 6, 7, 12, 16-20, and 28-56 of the given mywc.c.
+
+mywcifall2lines.txt: This file contains spaces, non-whitespace 
+characters, and 2 newline characters, and so causes the computer to 
+execute lines 6, 7, 12, 16-20, and 28-56 of the given mywc.c.
+
+mywcifall5lines.txt: This file contains spaces, non-whitespace 
+characters, and 5 newline characters, and so causes the computer to 
+execute lines 6, 7, 12, 16-20, and 28-56 of the given mywc.c.
+
+mywcifall10lines.txt: This file contains spaces, non-whitespace 
+characters, and 10 newline characters, and so causes the computer to 
+execute lines 6, 7, 12, 16-20, and 28-56 of the given mywc.c.
+
+mywcifall20lines.txt: This file contains spaces, non-whitespace 
+characters, and 20 newline characters, and so causes the computer to 
+execute lines 6, 7, 12, 16-20, and 28-56 of the given mywc.c.
+
+Stress tests:
+
+mywcMax.txt: A txt file containing a long, randomized sequence of 
+characters (including spaces, newlines, and non-whitespace characters) 
+(752 lines, 1228 words, 25000 characters).
 
 ------------------------------------------------------------------------
 What are the CPU times consumed by the programs from Parts 2a, 2b, 2d,
