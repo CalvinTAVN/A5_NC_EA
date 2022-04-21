@@ -11,10 +11,6 @@
 
         //only BSS is the BigInt_T struct
         .section .bss
-
-//this is commented out since this file is not the one that creates the struct
-//BigInt_T:       .skip 262152
-
         
         .section .text
 
@@ -29,11 +25,11 @@
         .equ LARGER_STACK_BYTECOUNT, 32 
         
         //Local Variables in BigInt_larger stack offset
-        .equ lLarger, 8
-
+        LLARGER .req x21 //Callee-saved
+        
         //Parameters stack offset
-        .equ lLength2, 16
-        .equ lLength1, 24
+        LLENGTH2 .req x20 //Callee-saved
+        LLENGTH1 .req x19 //Callee-saved
 
 
 BigInt_larger:
@@ -41,36 +37,46 @@ BigInt_larger:
         //prolog
         sub sp, sp, LARGER_STACK_BYTECOUNT
         str x30, [sp]
-        str x0, [sp, lLength1]
-        str x1, [sp, lLength2]
+        str x19, [sp, 8]
+        str x20, [sp, 16]
+        str x21, [sp, 24]
 
+        //store parameters in registers
+        mov LLENGTH1, x0
+        mov LLENGTH2, x1
+        
         //long lLarger
 
         //if (lLength 1 <= lLength2) goto larger_else;
-        ldr x0, [sp, lLength1]
-        ldr x1, [sp, lLength2]
-        cmp x0, x1
+        //ldr x0, [sp, lLength1]
+        //ldr x1, [sp, lLength2]
+        cmp LLENGTH1, LLENGTH2 
         ble larger_else
 
         //lLarger = lLength1;
-        str x0, [sp, lLarger]
-
+        //str x0, [sp, lLarger]
+        mov LLARGER, LLENGTH1
+        
         //goto larger_endif
         b larger_endif
         
 larger_else:
 
         //lLarger = lLength2
-        str x1, [sp, lLarger]   
+        //str x1, [sp, lLarger]   
+        mov LLARGER, LLENGTH2
         
 larger_endif:
 
         //epilog and return lLarger
-        ldr x0, [sp, lLarger]
+        //ldr x0, [sp, lLarger]
+        //ldr x30, [sp]
+        //add sp, sp, LARGER_STACK_BYTECOUNT
+        //ret
+        mov x0, LLARGER
         ldr x30, [sp]
-        add sp, sp, LARGER_STACK_BYTECOUNT
-        ret
-
+        ldr 
+        
         .size BigInt_larger, (. - BigInt_larger)
 
 
