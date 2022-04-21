@@ -1,4 +1,4 @@
-        //
+\0                              //136;0c
         //bigintadd.s
         //Authors: Calvin Nguyen and Alex Eng
         //
@@ -75,7 +75,11 @@ larger_endif:
         //ret
         mov x0, LLARGER
         ldr x30, [sp]
-        ldr 
+        ldr x19, [sp, 8]
+        ldr x20, [sp, 16]
+        ldr x21, [sp, 24]
+        add sp, sp, LARGER_STACKBYTECOUNT
+        ret
         
         .size BigInt_larger, (. - BigInt_larger)
 
@@ -100,29 +104,39 @@ larger_endif:
         .equ ADD_STACK_BYTECOUNT, 64
         
         //local Variables offset
-        .equ ulCarry, 8
-        .equ ulSum, 16
 
+        //.equ ulCarry, 8
+        ULCARRY .req x25
+        
+        //.equ ulSum, 16
+        ULSUM .req x24
+        
         //is long just by itself 8 bits?
-        .equ lIndex, 24
-        .equ lSumLength, 32
-
+        //.equ lIndex, 24
+        LINDEX .req x23
+        
+        //.equ lSumLength, 32
+        LSUMLENGTH .req x22
+        
         //Parametric offset , start at 40
         //start of first 3rd struct, the whole size is stored on the heap, x0,
         //x1, and x2, will likely represent the address of a specific struct,
         //which is linked to the heap
 
         //32768 * 8 = 262144 + 8 = 262152
-        .equ oSum, 40
-
+        //.equ oSum, 40
+        OSUM .req x21
+        
         //40 + 262152 = 262192
         //.equ oAddend2, 262192
-        .equ oAddend2, 48
+        //.equ oAddend2, 48
+        OADDEND2 .req x20
         
         //262192 + 262152 = 524344
         //.equ oAddend1, 524344
         //goes up to 524344 + 262152 = 786496
-        .equ oAddend1, 56
+        //.equ oAddend1, 56
+        OADDEND1 .req x19
         
         //structural field offsets
         .equ lLengthOffSet, 0
@@ -137,11 +151,21 @@ BigInt_add:
         //prolog
         sub sp, sp, ADD_STACK_BYTECOUNT
         str x30, [sp] //holds return address of BigInt_add I think
-        str x0, [sp, oAddend1] 
-        str x1, [sp, oAddend2]
-        str x2, [sp, oSum]
+        //str x0, [sp, oAddend1] 
+        //str x1, [sp, oAddend2]
+        //str x2, [sp, oSum]
+        str x19, [sp, 8]
+        str x20, [sp, 16]
+        str x21, [sp, 24]
+        str x22, [sp, 32]
+        str x23, [sp, 40]
+        str x24, [sp, 48]
+        str x25, [sp, 56]
 
-
+        //Store parameters in registers
+        mov OADDEND1
+        
+        
         //unisgned long ulCarry;
         //unsigned long ulSum;
         //long lIndex;
@@ -150,19 +174,14 @@ BigInt_add:
         /* Determine the larger length.*/ //note lLength is the first 8 bytes
         // in the struct
         //lSumLength = BigInt_larger(oAddend1->lLength, oAddend2->lLength)
-      /*  mov x2, lLengthOffSet
-        ldr x0, [sp, oAddend1, lsl 3]
-        ldr x1, [sp, oAddend2, lsl 3]
-        bl BigInt_larger
-        str x0, [sp, lSumLength]*/
-
-        mov x2, lLengthOffSet
-        ldr x0, [sp, oAddend1]
-        ldr x0, [x0, x2, lsl 3]
-        ldr x1, [sp, oAddend2]
-        ldr x1, [x1, x2, lsl 3]
-        bl BigInt_larger
-        str x0, [sp, lSumLength]
+        //mov x2, lLengthOffSet
+        //ldr x0, [sp, oAddend1]
+        //ldr x0, [x0, x2, lsl 3]
+        //ldr x1, [sp, oAddend2]
+        //ldr x1, [x1, x2, lsl 3]
+        //bl BigInt_larger
+        //str x0, [sp, lSumLength]
+       
         
 
         /* Clear oSum's array if necessary.*/
