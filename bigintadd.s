@@ -170,9 +170,10 @@ BigInt_add:
         //memset(oSum->aulDigits, 0, MAX_DIGITS * sizeof(unsigned long));
         ldr x0, [sp, oSum]
         add x0, x0, aulDigits //go past 8 bits from lLength to reach array
-        mov x1, MAX_DIGITS
-        MOV x2, LONGSIZE
-        mul x1, x1, x2
+        mov x1, 0
+        mov x2, MAX_DIGITS
+        MOV x3, 8
+        mul x2, x2, x3
         bl memset
         
 add_endif1:
@@ -230,7 +231,7 @@ add_loop1:
         bhs  add_endif2
         
         //ulCarry = 1
-        ldr x0, [sp, ulCarry] //not sure if this is needed
+        //ldr x0, [sp, ulCarry] //not sure if this is needed
         mov x0, 1
         str x0, [sp, ulCarry]
 
@@ -262,7 +263,7 @@ add_endif2:
         bhs add_endif3
         
         //ulCarry = 1
-        ldr x0, [sp, ulCarry] //not sure if this is needed
+        //ldr x0, [sp, ulCarry] //not sure if this is needed
         mov x0, 1
         str x0, [sp, ulCarry]
         
