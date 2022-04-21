@@ -124,6 +124,7 @@ larger_endif:
         .equ aulDigits, 8 
         
 
+        .global BigInt_add
         
 BigInt_add:
 
@@ -145,7 +146,7 @@ BigInt_add:
         //lSumLength = BigInt_larger(oAddend1->lLength, oAddend2->lLength)
         ldr x0, [sp, oAddend1]
         ldr x1, [sp, oAddend2]
-        bl BigInt_Larger
+        bl BigInt_larger
         str x0, [sp, lSumLength]
 
         /* Clear oSum's array if necessary.*/
@@ -153,7 +154,7 @@ BigInt_add:
         ldr x0, [sp, oSum]
         ldr x1, [sp, lSumLength]
         cmp x0, x1
-        ble add_endif2
+        ble add_endif1
 
         //memset(oSum->aulDigits, 0, MAX_DIGITS * sizeof(unsigned long));
         ldr x0, [sp, oSum]
