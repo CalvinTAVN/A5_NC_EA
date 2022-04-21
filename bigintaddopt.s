@@ -1,5 +1,5 @@
         //---------------------------------------
-        //bigintadd.s
+        //bigintaddopt.s
         //Authors: Calvin Nguyen and Alex Eng
         //------------------------------------------
 
