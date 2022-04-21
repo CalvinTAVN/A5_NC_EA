@@ -78,7 +78,7 @@ larger_endif:
         ldr x19, [sp, 8]
         ldr x20, [sp, 16]
         ldr x21, [sp, 24]
-        add sp, sp, LARGER_STACKBYTECOUNT
+        add sp, sp, LARGER_STACK_BYTECOUNT
         ret
         
         .size BigInt_larger, (. - BigInt_larger)
@@ -196,9 +196,8 @@ BigInt_add:
         //ldr x1, [sp, lSumLength]
         //cmp x0, x1
         //ble add_endif1
-        ldr x0, [OSUM] //length is at start so no need to offset
-        mov x1, LSUMLENGTH
-        cmp x0, x1
+        ldr x0, [OSUM, LLENGTHOFFSET] //length is at start so no need to offset
+        cmp x0, LSUMLENGTH
         ble add_endif1
         
         
@@ -210,7 +209,8 @@ BigInt_add:
         //MOV x3, 8
         //mul x2, x2, x3
         //bl memset
-        ldr x0, [OSUM, AULDIGITS] //offset by 8 bytes to reach array
+        mov x0, OSUM
+        add x0, x0, 8
         mov x1, 0
         mov x2, MAX_DIGITS * 8
         bl memset
@@ -237,9 +237,7 @@ add_loop1:
         //ldr x1, [sp, lSumLength]
         //cmp x0, x1
         //bge add_endloop1
-        mov x0, LINDEX
-        mov x1, LSUMLENGTH
-        cmp x0, x1
+        cmp LINDEX, LSUMLENGTH
         bge add_endloop1
 
         //ulSum = ulCarry;
@@ -352,48 +350,71 @@ add_endloop1:
 
         /* Check for a carry out of the last "column" of the addition. */
         //if (ulCarry != 1) goto add_endif4;
-        ldr x0, [sp, ulCarry]
-        cmp x0, 1
+        //ldr x0, [sp, ulCarry]
+        //cmp x0, 1
+        //bne add_endif4
+        cmp ULCARRY, 1
         bne add_endif4
-
+        
         //if (lSumLength != MAX_DIGITS) goto add_endif5;
-        ldr x0, [sp, lSumLength]
-        cmp x0, MAX_DIGITS
+        //ldr x0, [sp, lSumLength]
+        //cmp x0, MAX_DIGITS
+        //bne add_endif5
+        cmp LSUMLENGTH, MAX_DIGITS
         bne add_endif5
-
+        
         //return FALSE and epilog
         mov x0, FALSE
         ldr x30, [sp]
+        ldr x19, [sp, 8]
+        ldr x20, [sp, 16]
+        ldr x21, [sp, 24]
+        ldr x22, [sp, 32]
+        ldr x23, [sp, 40]
+        ldr x24, [sp, 48]
+        ldr x25, [sp, 56]
         add sp, sp, ADD_STACK_BYTECOUNT
         ret
         
 add_endif5:
 
         //oSum->aulDigits[lSumLength] = 1;
-        ldr x1, [sp, lSumLength]
-        ldr x0, [sp, oSum]
-        add x0, x0, aulDigits
-        mov x2, 1
-        str x2, [x0, x1, lsl 3]
-
+        //ldr x1, [sp, lSumLength]
+        //ldr x0, [sp, oSum]
+        //add x0, x0, aulDigits
+        //mov x2, 1
+        //str x2, [x0, x1, lsl 3]
+        mov x0, OSUM
+        add x0, x0, AULDIGITS
+        mov x1, 1
+        str x1, [x0, LSUMLENGTH, lsl 3]
+        
+        
         //lSumLength++
-        ldr x0, [sp, lSumLength]
-        add x0, x0, 1
-        str x0, [sp, lSumLength]
+        //ldr x0, [sp, lSumLength]
+        //add x0, x0, 1
+        //str x0, [sp, lSumLength]
+        add LSUMLENGTH, LSUMLENGTH, 1
 
 add_endif4:     
         //update
         /* Set the length of the sum. */
         //oSum->lLength = lSumLength;
+        //ldr x0, [sp, oSum]
         //ldr x1, [sp, lSumLength]
-        //str x1, [sp, oSum] //lLength is the first 8 bits of oSum
-        ldr x0, [sp, oSum]
-        ldr x1, [sp, lSumLength]
-        str x1, [x0]
+        //str x1, [x0]
+        str LSUMLENGTH, [OSUM, LLENGTHOFFSET]
         
         //return TRUE and epilog
         mov x0, TRUE
         ldr x30, [sp]
+        ldr x19, [sp, 8]
+        ldr x20, [sp, 16]
+        ldr x21, [sp, 24]
+        ldr x22, [sp, 32]
+        ldr x23, [sp, 40]
+        ldr x24, [sp, 48]
+        ldr x25, [sp, 56]
         add sp, sp, ADD_STACK_BYTECOUNT
         ret
 
