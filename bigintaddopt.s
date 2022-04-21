@@ -163,10 +163,12 @@ BigInt_add:
         str x25, [sp, 56]
 
         //Store parameters in registers
-        mov OADDEND1
+        mov OADDEND1, x0
+        mov OADDEND2, x1
+        MOV OSUM, x2
         
         
-        //unisgned long ulCarry;
+        //unsigned long ulCarry;
         //unsigned long ulSum;
         //long lIndex;
         //long lSumLength;
@@ -181,24 +183,36 @@ BigInt_add:
         //ldr x1, [x1, x2, lsl 3]
         //bl BigInt_larger
         //str x0, [sp, lSumLength]
-       
+        ldr x0, [OADDEND1] //length is at the start, so no need to offset
+        ldr x1, [OADDEND2]
+        bl BigInt_larger
+        mov LSUMLENGTH, x0
         
 
         /* Clear oSum's array if necessary.*/
         //if (oSum->lLength <= lSumLength) goto add_endif1;
-        ldr x0, [sp, oSum]
-        ldr x0, [x0]
-        ldr x1, [sp, lSumLength]
+        //ldr x0, [sp, oSum]
+        //ldr x0, [x0]
+        //ldr x1, [sp, lSumLength]
+        //cmp x0, x1
+        //ble add_endif1
+        ldr x0, [OSUM] //length is at start so no need to offset
+        mov x1, LSUMLENGTH
         cmp x0, x1
         ble add_endif1
-
+        
+        
         //memset(oSum->aulDigits, 0, MAX_DIGITS * sizeof(unsigned long));
-        ldr x0, [sp, oSum]
-        add x0, x0, aulDigits //go past 8 bits from lLength to reach array
+        //ldr x0, [sp, oSum]
+        //add x0, x0, aulDigits //go past 8 bits from lLength to reach array
+        //mov x1, 0
+        //mov x2, MAX_DIGITS
+        //MOV x3, 8
+        //mul x2, x2, x3
+        //bl memset
+        ldr x0, [OSUM, AULDIGITS] //offset by 8 bytes to reach array
         mov x1, 0
-        mov x2, MAX_DIGITS
-        MOV x3, 8
-        mul x2, x2, x3
+        mov x2, MAX_DIGITS * 8
         bl memset
         
 add_endif1:
@@ -206,73 +220,86 @@ add_endif1:
         /* Perform the addition.*/
         //ulCarry = 0;
         //ldr x0, [sp, ulCarry] //not sure if this is necessary, prob not
-        mov x0, 0
-        str x0, [sp, ulCarry]
+        //mov x0, 0
+        //str x0, [sp, ulCarry]
+        mov ULCARRY, 0
 
         //lIndex = 0;
         // ldr x0, [sp, lIndex] //not sure if this is necessary, prob not
-        mov x0, 0
-        str x0, [sp, lIndex]
+        //mov x0, 0
+        //str x0, [sp, lIndex]
+        mov LINDEX, 0
         
 add_loop1:
 
         //if (lIndex >= lSumLength) goto add_endloop1;
-        ldr x0, [sp, lIndex]
-        ldr x1, [sp, lSumLength]
+        //ldr x0, [sp, lIndex]
+        //ldr x1, [sp, lSumLength]
+        //cmp x0, x1
+        //bge add_endloop1
+        mov x0, LINDEX
+        mov x1, LSUMLENGTH
         cmp x0, x1
         bge add_endloop1
 
         //ulSum = ulCarry;
-        ldr x0, [sp, ulCarry]
-        str x0, [sp, ulSum]
-
+        //ldr x0, [sp, ulCarry]
+        //str x0, [sp, ulSum]
+        mov ULSUM, ULCARRY
+        
         //ulCarry = 0;
-        mov x0, 0
-        str x0, [sp, ulCarry]
-
+        //mov x0, 0
+        //str x0, [sp, ulCarry]
+        mov ULCARRY, 0
+        
         //ulSum += oAddend1->aulDigits[lIndex];
-        ldr x0, [sp, ulSum]
-        //oAddend1 -> aulDigits[lIndex]
-        ldr x1, [sp, oAddend1]
-        ldr x2, [sp, lIndex]
-        add x1, x1, aulDigits //adds 8 bits to reach array
-        //mov x2, lIndex //aulDigits index
-        ldr x1, [x1, x2, lsl 3] //left shift 3 to multiply by 8 for long length
-        //+=
+        //ldr x0, [sp, ulSum]
+        //ldr x1, [sp, oAddend1]
+        //ldr x2, [sp, lIndex]
+        //add x1, x1, aulDigits //adds 8 bits to reach array
+        //ldr x1, [x1, x2, lsl 3] //left shift 3 to multiply by 8 for long length
+        //add x0, x0, x1
+        //str x0, [sp, ulSum]
+        mov x0, OADDEND1
+        add x0, x0, AULDIGITS
+        ldr x0, [x0, LINDEX, lsl 3]
+        mov x1, ULSUM
         add x0, x0, x1
-        str x0, [sp, ulSum]
+        mov ULSUM, x0
 
         //if (ulSum >= oAddend1->aulDigits[lIndex]) goto add_endif2;
-        ldr x0, [sp, ulSum]
-        //oAddend1 -> aulDigits[lIndex]
-        ldr x1, [sp, oAddend1]
-        ldr x2, [sp, lIndex]
-        add x1, x1, aulDigits //adds 8 bits to reach array
-        //mov x2, lIndex //aulDigits index
-        ldr x1, [x1, x2, lsl 3] //left shift 3 to multiply by 8 for long length
-        //if statement
+        //ldr x0, [sp, ulSum]
+        //ldr x1, [sp, oAddend1]
+        //ldr x2, [sp, lIndex]
+        //add x1, x1, aulDigits //adds 8 bits to reach array
+        //ldr x1, [x1, x2, lsl 3] //left shift 3 to multiply by 8 for long length
+        //cmp x0, x1
+        //bhs  add_endif2
+        mov x0, ULSUM
+        mov x1, OADDEND1
+        add x1, x1, AULDIGITS
+        ldr x1, [x1, LINDEX, lsl 3]
         cmp x0, x1
-        //changed
-        bhs  add_endif2
+        bhs add_endif2
         
         //ulCarry = 1
         //ldr x0, [sp, ulCarry] //not sure if this is needed
-        mov x0, 1
-        str x0, [sp, ulCarry]
-
+        //mov x0, 1
+        //str x0, [sp, ulCarry]
+        mov ULCARRY, 1
+        
+        
 add_endif2:
 
         //ulSum += oAddend2->aulDigits[lIndex];
         ldr x0, [sp, ulSum]
-        //oAddend2 -> aulDigits[lIndex]
         ldr x1, [sp, oAddend2]
         ldr x2, [sp, lIndex]
         add x1, x1, aulDigits //adds 8 bits to reach array
-        //mov x2, lIndex //aulDigits index
         ldr x1, [x1, x2, lsl 3] //left shift 3 to multiply by 8 for long length
-        //+=
         add x0, x0, x1
         str x0, [sp, ulSum]
+        
 
         //if (ulSum >= oAddend2->aulDigits[lIndex]) goto add_endif3;
         ldr x0, [sp, ulSum]
