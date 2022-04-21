@@ -139,9 +139,9 @@ larger_endif:
         OADDEND1 .req x19
         
         //structural field offsets
-        .equ lLengthOffSet, 0
+        .equ LLENGTHOFFSET, 0
         //so the array aulDigits starts at 8
-        .equ aulDigits, 8 
+        .equ AULDIGITS, 8 
         
 
         .global BigInt_add
@@ -263,9 +263,7 @@ add_loop1:
         mov x0, OADDEND1
         add x0, x0, AULDIGITS
         ldr x0, [x0, LINDEX, lsl 3]
-        mov x1, ULSUM
-        add x0, x0, x1
-        mov ULSUM, x0
+        add ULSUM, ULSUM, x0
 
         //if (ulSum >= oAddend1->aulDigits[lIndex]) goto add_endif2;
         //ldr x0, [sp, ulSum]
@@ -275,11 +273,10 @@ add_loop1:
         //ldr x1, [x1, x2, lsl 3] //left shift 3 to multiply by 8 for long length
         //cmp x0, x1
         //bhs  add_endif2
-        mov x0, ULSUM
-        mov x1, OADDEND1
-        add x1, x1, AULDIGITS
-        ldr x1, [x1, LINDEX, lsl 3]
-        cmp x0, x1
+        mov x0, OADDEND1
+        add x0, x0, AULDIGITS
+        ldr x0, [x0, LINDEX, lsl 3]
+        cmp ULSUM, x0
         bhs add_endif2
         
         //ulCarry = 1
@@ -292,49 +289,62 @@ add_loop1:
 add_endif2:
 
         //ulSum += oAddend2->aulDigits[lIndex];
-        ldr x0, [sp, ulSum]
-        ldr x1, [sp, oAddend2]
-        ldr x2, [sp, lIndex]
-        add x1, x1, aulDigits //adds 8 bits to reach array
-        ldr x1, [x1, x2, lsl 3] //left shift 3 to multiply by 8 for long length
-        add x0, x0, x1
-        str x0, [sp, ulSum]
+        //ldr x0, [sp, ulSum]
+        //ldr x1, [sp, oAddend2]
+        //ldr x2, [sp, lIndex]
+        //add x1, x1, aulDigits //adds 8 bits to reach array
+        //ldr x1, [x1, x2, lsl 3] //left shift 3 to multiply by 8 for long length
+        //add x0, x0, x1
+        //str x0, [sp, ulSum]
+        mov x0, OADDEND2
+        add x0, x0, AULDIGITS
+        ldr x0, [x0, LINDEX, lsl 3]
+        add ULSUM, ULSUM, x0
         
 
         //if (ulSum >= oAddend2->aulDigits[lIndex]) goto add_endif3;
-        ldr x0, [sp, ulSum]
-        //oAddend1 -> aulDigits[lIndex]
-        ldr x1, [sp, oAddend2]
-        ldr x2, [sp, lIndex]
-        add x1, x1, aulDigits //adds 8 bits to reach array
-        //mov x2, lIndex //aulDigits index
-        ldr x1, [x1, x2, lsl 3] //left shift 3 to multiply by 8 for long length
-        //if statement
-        cmp x0, x1
-        //changed since ulSum and aulDigits longs are unsigned
+        //ldr x0, [sp, ulSum]
+        //ldr x1, [sp, oAddend2]
+        //ldr x2, [sp, lIndex]
+        //add x1, x1, aulDigits //adds 8 bits to reach array
+        //ldr x1, [x1, x2, lsl 3] //left shift 3 to multiply by 8 for long length
+        //cmp x0, x1
+        //bhs add_endif3
+        mov x1, OADDEND2
+        add x1, x1, AULDIGITS
+        ldr x1, [x1, LINDEX, lsl 3]
+        cmp ULSUM, x1
         bhs add_endif3
+        
+        
         
         //ulCarry = 1
         //ldr x0, [sp, ulCarry] //not sure if this is needed
-        mov x0, 1
-        str x0, [sp, ulCarry]
+        //mov x0, 1
+        //str x0, [sp, ulCarry]
+        mov ULCARRY, 1
+
         
 add_endif3:
 
         //oSum->aulDigits[lIndex] = ulSum
-        ldr x2, [sp, ulSum]
-        ldr x1, [sp, lIndex]
-        ldr x0, [sp, oSum]
-        add x0, x0, aulDigits
+        //ldr x2, [sp, ulSum]
+        //ldr x1, [sp, lIndex]
+        //ldr x0, [sp, oSum]
+        //add x0, x0, aulDigits
         //mov x1, lIndex
-        str x2, [x0, x1, lsl 3]
-
+        //str x2, [x0, x1, lsl 3]
+        mov x0, OSUM
+        add x0, x0, AULDIGITS
+        str ULSUM, [x0, LINDEX, lsl 3]
+        
         
         //lIndex++;
-        ldr x0, [sp, lIndex]
-        add x0, x0, 1
-        str x0, [sp, lIndex] 
-
+        //ldr x0, [sp, lIndex]
+        //add x0, x0, 1
+        //str x0, [sp, lIndex] 
+        add LINDEX, LINDEX, 1
+        
         //goto add_loop1;
         b add_loop1
         
