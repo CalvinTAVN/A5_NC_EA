@@ -73,8 +73,9 @@ int BigInt_add(BigInt_T oAddend1, BigInt_T oAddend2, BigInt_T oSum)
    ulCarry = 0;
    lIndex = 0;
 
+   if (lIndex>= lSumLength) goto add_endloop1;
   add_loop1:
-   if (lIndex >= lSumLength) goto add_endloop1;
+
 
    ulSum = ulCarry;
    ulCarry = 0;
@@ -92,7 +93,9 @@ int BigInt_add(BigInt_T oAddend1, BigInt_T oAddend2, BigInt_T oSum)
    oSum->aulDigits[lIndex] = ulSum;
 
    lIndex++;
+   if (lIndex >= lSumLength) goto add_endloop1;
    goto add_loop1;
+   
   add_endloop1:
 
 
