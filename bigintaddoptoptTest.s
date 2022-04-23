@@ -18,6 +18,68 @@
         .equ FALSE, 0
         .equ TRUE, 1
 
+        //Returns the larger of lLength1 and lLength2
+        //function of BigInt_larger(long lLength1, long lLength2)
+
+        // Must be a Multiple of 16 //was 32
+        .equ LARGER_STACK_BYTECOUNT, 32
+
+
+        //Local Variables in BigInt_larger stack offset
+        LLARGER .req x21 //Callee-saved
+
+        //Parameters stack offset
+        LLENGTH2 .req x20 //Callee-saved
+        LLENGTH1 .req x19 //Callee-saved
+
+
+BigInt_larger:
+
+        //prolog
+        sub sp, sp, LARGER_STACK_BYTECOUNT
+        str x30, [sp]
+        str x19, [sp, 8]
+        str x20, [sp, 16]
+        str x21, [sp, 24]
+        str x19, [sp, 8]
+        //store parameters in registers
+        mov LLENGTH1, x0
+        mov LLENGTH2, x1
+
+        //long lLarger
+
+        //if (lLength 1 <= lLength2) goto larger_else;
+        cmp LLENGTH1, LLENGTH2
+        ble larger_else
+
+        //lLarger = lLength1;
+        mov LLARGER, LLENGTH1
+
+        //goto larger_endif
+        b larger_endif
+
+larger_else:
+
+        //lLarger = lLength2
+        mov LLARGER, LLENGTH2
+
+larger_endif:
+
+        //epilog and return lLarger
+        mov x0, LLARGER
+        ldr x30, [sp]
+        ldr x19, [sp, 8]
+        ldr x20, [sp, 16]
+        ldr x21, [sp, 24]
+        add sp, sp, LARGER_STACK_BYTECOUNT
+        ret
+
+        .size BigInt_larger, (. - BigInt_larger)
+
+
+
+
+
         //------------------------------------
 
         /*Assign the sum of oAddend1 and oAddend2 to oSum.  oSum should be
@@ -30,9 +92,11 @@
         .equ MAX_DIGITS, 32768
 
         //Must be a multiple of 16
-        .equ ADD_STACK_BYTECOUNT, 80
+        .equ ADD_STACK_BYTECOUNT, 96
 
         //local Variables offset
+
+        ULCARRY .req x25
 
         ULSUM .req x24
 
@@ -50,9 +114,9 @@
 
         //new Registers to compute +8 to BigInt objects to reach
         //arrays
-        OADDENDARRAY1 .req x25
-        OADDENDARRAY2 .req x26
-        OSUMARRAY .req x27
+        OADDENDARRAY1 .req x26
+        OADDENDARRAY2 .req x27
+        OSUMARRAY .req x28
 
         //structural field offsets
         .equ LLENGTHOFFSET, 0
@@ -61,7 +125,7 @@
 
 
         .global BigInt_add
-        
+
 BigInt_add:
 
         //prolog
@@ -76,7 +140,7 @@ BigInt_add:
         str x25, [sp, 56]
         str x26, [sp, 64]
         str x27, [sp, 72]
-        //str x28, [sp, 80]
+        str x28, [sp, 80]
 
         //Store parameters in registers
         mov OADDEND1, x0
@@ -101,19 +165,10 @@ BigInt_add:
         /* Determine the larger length.*/ //note lLength is the first 8 bytes
         // in the struct
         //lSumLength = BigInt_larger(oAddend1->lLength, oAddend2->lLength)
-        ldr x0, [x0]
+        ldr x0, [x0] //length is at the start, so no need to offset
         ldr x1, [x1]
-        cmp x0, x1
-        ble lLength2Larger
-        //bge lLength1Larger
-        
-lLength1Larger:
+        bl BigInt_larger
         mov LSUMLENGTH, x0
-        b lLengthResult
-lLength2Larger:
-        mov LSUMLENGTH, x1
-lLengthResult:  
-        
 
 
         /* Clear oSum's array if necessary.*/
@@ -133,74 +188,52 @@ add_endif1:
 
         /* Perform the addition.*/
         //ulCarry = 0;
-        //mov ULCARRY, 0
+        mov ULCARRY, 0
 
         //lIndex = 0;
         mov LINDEX, 0
 
+add_loop1:
 
         //if (lIndex >= lSumLength) goto add_endloop1;
         cmp LINDEX, LSUMLENGTH
-        bge add_endif4
-
-        
-        
-add_loop1:
-
-        //ulSum = ulCarry
-        mov ULSUM, 0
-        //if C Pstate Flag is1
-        b carryis0
-carryis1:       
-        //blo carryis0
-        mov ULSUM, 1
-carryis0:        
-        
+        bge add_endloop1
 
         //ulSum = ulCarry;
-        //mov ULSUM, ULCARRY
+        mov ULSUM, ULCARRY
 
         //ulCarry = 0;
-        //mov ULCARRY, 0
+        mov ULCARRY, 0
 
         //ulSum += oAddend1->aulDigits[lIndex];
         ldr x0, [OADDENDARRAY1, LINDEX, lsl 3]
-        adcs ULSUM, ULSUM, x0
+        add ULSUM, ULSUM, x0
 
-        //if the Carry Flag is 1, go to add_endif2skip
-        //if the Carry Flag is 0, go to add_endif2
-        bhs add_endif2skip
-        b add_endif2
-        
         //if (ulSum >= oAddend1->aulDigits[lIndex]) goto add_endif2;
-        //ldr x0, [OADDENDARRAY1, LINDEX, lsl 3]
-        //cmp ULSUM, x0
-        //bhs add_endif2
+        ldr x0, [OADDENDARRAY1, LINDEX, lsl 3]
+        cmp ULSUM, x0
+        bhs add_endif2
 
         //ulCarry = 1
-        //mov ULCARRY, 1
+        mov ULCARRY, 1
 
 
 add_endif2:
 
         //ulSum += oAddend2->aulDigits[lIndex];
         ldr x0, [OADDENDARRAY2, LINDEX, lsl 3]
-        adcs ULSUM, ULSUM, x0
-        b add_endif3
+        add ULSUM, ULSUM, x0
+
 
         //if (ulSum >= oAddend2->aulDigits[lIndex]) goto add_endif3;
-        //ldr x1, [OADDENDARRAY2, LINDEX, lsl 3]
-        //cmp ULSUM, x1
-        //bhs add_endif3
+        ldr x1, [OADDENDARRAY2, LINDEX, lsl 3]
+        cmp ULSUM, x1
+        bhs add_endif3
 
-add_endif2skip:
 
-        ldr x0, [OADDENDARRAY2, LINDEX, lsl 3]
-        add ULSUM, ULSUM, x0
-        
 
         //ulCarry = 1
-        //mov ULCARRY, 1
+        mov ULCARRY, 1
 
 
 add_endif3:
@@ -212,32 +245,16 @@ add_endif3:
         //lIndex++;
         add LINDEX, LINDEX, 1
 
-        //if carry is 1
-        bhs add_endif3carryis1
-        
-        //if (lIndex >= lSumLength) goto add_endloop1
-        //if carry is 0
-        cmp LINDEX, LSUMLENGTH
-        bge add_endif4
-        
         //goto add_loop1;
         b add_loop1
-
-add_endif3carryis1:
-        //if carry is 1
-        cmp LINDEX, LSUMLENGTH
-        bge add_endloop1
-
-        //goto carryis1
-        b carryis1
 
 add_endloop1:
 
         /* Check for a carry out of the last "column" of the addition. */
         //if (ulCarry != 1) goto add_endif4;
-        //cmp ULCARRY, 1
-        //bne add_endif4
-        //blo add_endif4 
+        cmp ULCARRY, 1
+        bne add_endif4
+
         //if (lSumLength != MAX_DIGITS) goto add_endif5;
         cmp LSUMLENGTH, MAX_DIGITS
         bne add_endif5
@@ -254,7 +271,7 @@ add_endloop1:
         ldr x25, [sp, 56]
         ldr x26, [sp, 64]
         ldr x27, [sp, 72]
-        //ldr x28, [sp, 80]
+        ldr x28, [sp, 80]
         add sp, sp, ADD_STACK_BYTECOUNT
         ret
 
@@ -286,7 +303,7 @@ add_endif4:
         ldr x25, [sp, 56]
         ldr x26, [sp, 64]
         ldr x27, [sp, 72]
-        //ldr x28, [sp, 80]
+        ldr x28, [sp, 80]
         add sp, sp, ADD_STACK_BYTECOUNT
         ret
 
