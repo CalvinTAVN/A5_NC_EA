@@ -18,66 +18,6 @@
         .equ FALSE, 0
         .equ TRUE, 1
 
-        //Returns the larger of lLength1 and lLength2
-        //function of BigInt_larger(long lLength1, long lLength2)
-
-        // Must be a Multiple of 16 //was 32
-        .equ LARGER_STACK_BYTECOUNT, 32
-
-
-        //Local Variables in BigInt_larger stack offset
-        LLARGER .req x21 //Callee-saved
-
-        //Parameters stack offset
-        LLENGTH2 .req x20 //Callee-saved
-        LLENGTH1 .req x19 //Callee-saved
-
-
-BigInt_larger:
-
-        //prolog
-        sub sp, sp, LARGER_STACK_BYTECOUNT
-        str x30, [sp]
-        str x19, [sp, 8]
-        str x20, [sp, 16]
-        str x21, [sp, 24]
-        str x19, [sp, 8]
-        //store parameters in registers
-        mov LLENGTH1, x0
-        mov LLENGTH2, x1
-
-        //long lLarger
-
-        //if (lLength 1 <= lLength2) goto larger_else;
-        cmp LLENGTH1, LLENGTH2
-        ble larger_else
-
-        //lLarger = lLength1;
-        mov LLARGER, LLENGTH1
-
-        //goto larger_endif
-        b larger_endif
-
-larger_else:
-
-        //lLarger = lLength2
-        mov LLARGER, LLENGTH2
-
-larger_endif:
-
-        //epilog and return lLarger
-        mov x0, LLARGER
-        ldr x30, [sp]
-        ldr x19, [sp, 8]
-        ldr x20, [sp, 16]
-        ldr x21, [sp, 24]
-        add sp, sp, LARGER_STACK_BYTECOUNT
-        ret
-
-        .size BigInt_larger, (. - BigInt_larger)
-
-
-
 
 
         //------------------------------------
@@ -167,8 +107,15 @@ BigInt_add:
         //lSumLength = BigInt_larger(oAddend1->lLength, oAddend2->lLength)
         ldr x0, [x0] //length is at the start, so no need to offset
         ldr x1, [x1]
-        bl BigInt_larger
+        cmp x0, x1
+        ble lLength2Larger
+
+lLength1Larger:
         mov LSUMLENGTH, x0
+        b lLengthResult
+lLength2Larger:
+        mov LSUMLENGTH, x1
+lLengthResult:  
 
 
         /* Clear oSum's array if necessary.*/
@@ -193,11 +140,11 @@ add_endif1:
         //lIndex = 0;
         mov LINDEX, 0
 
-add_loop1:
-
         //if (lIndex >= lSumLength) goto add_endloop1;
         cmp LINDEX, LSUMLENGTH
         bge add_endloop1
+        
+add_loop1:
 
         //ulSum = ulCarry;
         mov ULSUM, ULCARRY
@@ -245,6 +192,10 @@ add_endif3:
         //lIndex++;
         add LINDEX, LINDEX, 1
 
+        //if (lIndex >= lSumLength) goto add_endloop1;
+        cmp LINDEX, LSUMLENGTH
+        bge add_endloop1
+        
         //goto add_loop1;
         b add_loop1
 
