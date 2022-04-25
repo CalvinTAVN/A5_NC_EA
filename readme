@@ -82,6 +82,10 @@ For 2E, we thought we had to optimize it further to get a faster time.
 So we used Registers 26-28 in BigInt_add to further speed up the
 .s file, which it did.
 
+Furthermore, for 2f, we did the 1st 2 methods for optimization (guarded loop
+and "inlining") which got us to a time of 3.2 seconds. However, using
+the adcs method, we got to an increased time for 3.6 seconds which we
+didn't understand why
 
 ------------------------------------------------------------------------
 What is your mywc program test plan?
@@ -213,7 +217,7 @@ Part 2d:  10.57  seconds
 
 Part 2e:  3.26 seconds
 
-Part 2f:  _____ seconds
+Part 2f:  3.63 seconds
 
 
 

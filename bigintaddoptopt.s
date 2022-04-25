@@ -1,5 +1,5 @@
         //---------------------------------------
-        //bigintaddopt.s
+        //bigintaddoptopt.s
         //Authors: Calvin Nguyen and Alex Eng
         //------------------------------------------
 
@@ -76,7 +76,6 @@ BigInt_add:
         str x25, [sp, 56]
         str x26, [sp, 64]
         str x27, [sp, 72]
-        //str x28, [sp, 80]
 
         //Store parameters in registers
         mov OADDEND1, x0
@@ -105,7 +104,6 @@ BigInt_add:
         ldr x1, [x1]
         cmp x0, x1
         ble lLength2Larger
-        //bge lLength1Larger
         
 lLength1Larger:
         mov LSUMLENGTH, x0
@@ -157,11 +155,6 @@ carryis1:
 carryis0:        
         
 
-        //ulSum = ulCarry;
-        //mov ULSUM, ULCARRY
-
-        //ulCarry = 0;
-        //mov ULCARRY, 0
 
         //ulSum += oAddend1->aulDigits[lIndex];
         ldr x0, [OADDENDARRAY1, LINDEX, lsl 3]
@@ -171,15 +164,6 @@ carryis0:
         //if the Carry Flag is 0, go to add_endif2
         bhs add_endif2skip
         b add_endif2
-        
-        //if (ulSum >= oAddend1->aulDigits[lIndex]) goto add_endif2;
-        //ldr x0, [OADDENDARRAY1, LINDEX, lsl 3]
-        //cmp ULSUM, x0
-        //bhs add_endif2
-
-        //ulCarry = 1
-        //mov ULCARRY, 1
-
 
 add_endif2:
 
@@ -188,20 +172,10 @@ add_endif2:
         adcs ULSUM, ULSUM, x0
         b add_endif3
 
-        //if (ulSum >= oAddend2->aulDigits[lIndex]) goto add_endif3;
-        //ldr x1, [OADDENDARRAY2, LINDEX, lsl 3]
-        //cmp ULSUM, x1
-        //bhs add_endif3
-
 add_endif2skip:
 
         ldr x0, [OADDENDARRAY2, LINDEX, lsl 3]
         add ULSUM, ULSUM, x0
-        
-
-        //ulCarry = 1
-        //mov ULCARRY, 1
-
 
 add_endif3:
 
@@ -235,9 +209,7 @@ add_endloop1:
 
         /* Check for a carry out of the last "column" of the addition. */
         //if (ulCarry != 1) goto add_endif4;
-        //cmp ULCARRY, 1
-        //bne add_endif4
-        //blo add_endif4 
+     
         //if (lSumLength != MAX_DIGITS) goto add_endif5;
         cmp LSUMLENGTH, MAX_DIGITS
         bne add_endif5
@@ -254,7 +226,6 @@ add_endloop1:
         ldr x25, [sp, 56]
         ldr x26, [sp, 64]
         ldr x27, [sp, 72]
-        //ldr x28, [sp, 80]
         add sp, sp, ADD_STACK_BYTECOUNT
         ret
 
@@ -286,7 +257,6 @@ add_endif4:
         ldr x25, [sp, 56]
         ldr x26, [sp, 64]
         ldr x27, [sp, 72]
-        //ldr x28, [sp, 80]
         add sp, sp, ADD_STACK_BYTECOUNT
         ret
 
